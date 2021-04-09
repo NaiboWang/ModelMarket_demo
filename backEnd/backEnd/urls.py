@@ -20,8 +20,7 @@ from django.conf.urls import url
 
 urlpatterns = [
     url(r'^$', view.hello),
-    path('backEnd/queryServices', view.queryServices),
-    path('backEnd/queryService', view.queryService),
+    path('login',view.login),
     path('backEnd/manageService',view.manageService),
     path('backEnd/deleteService',view.deleteService),
     path('backEnd/invokeService',view.invokeService), #调用服务接口

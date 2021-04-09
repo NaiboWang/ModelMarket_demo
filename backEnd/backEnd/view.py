@@ -4,23 +4,14 @@ import pymongo
 import json
 from bson import json_util
 
-"""
-高分服务器地址：192.168.14.113
-用户名：root
-密码：zju.edu.cn
-ftp用户：naibowang
-密码：qq
-程序位置：/root/servicewrapper
-"""
-
 def hello(request):
     return HttpResponse("Hello world ! ")
 
 
 myclient = pymongo.MongoClient('mongodb://localhost:27017/')
-mydb = myclient['service']
-mycol = mydb["services"]
-taskcol = mydb["tasks"] #生成新任务并返回ID
+mydb = myclient['modelmarket']
+mycol = mydb["auths"]
+models = mydb["models"] #生成新任务并返回ID
 
 def queryServices(request):
     result = mycol.find({"id" : { "$ne" : -2 }},{ "name": 1, "id": 1, "url": 1, "_id": 0 }) #查询id不为-2的元素
@@ -30,14 +21,19 @@ def queryTasks(request):
     result = taskcol.find({"id" : { "$ne" : -2 }},{ "name": 1, "id": 1, "url": 1, "_id": 0 }) #查询id不为-2的元素
     return HttpResponse(json.dumps(list(result)), content_type="application/json")
 
-def queryService(request):
-    if 'id' in request.GET:
-        tid = request.GET['id']
+def login(request):
+    result = mycol.find({"username":request.GET['username']})
+    r = list(result)
+    if len(r) == 0: # 没找到值
+        result = {"status":404, "error": "User not found!"}
+        print("User not found")
     else:
-        tid = "0"
-    result = mycol.find({"id":int(tid)},{"_id":0})
-    r = list(result)[0]
-    return HttpResponse(json.dumps(r), content_type="application/json")
+        item = r[0]
+        if item["pswd"] != request.GET['pass']:
+            result = {"status": 201, "error": "Wrong password!"}
+        else:
+            result = {"status": 200, "role": item["role"]}
+    return HttpResponse(json.dumps(result), content_type="application/json")
 
 def queryTask(request):
     if 'id' in request.GET:
