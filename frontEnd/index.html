@@ -30,7 +30,7 @@
         <div class="bar"></div>
       </div>
       <div class="button-container">
-        <button v-on:click="loginauth"><span>Login</span></button>
+        <button id="enter" v-on:click="loginauth"><span>Login</span></button>
       </div>
     </div>
   </div>
@@ -93,6 +93,13 @@
         }
     });
 
+    function cdk() {
+        if(event.keyCode == 13) {
+            document.getElementById("enter").click();
+            return false;
+        }
+    }
+    document.onkeydown=cdk;
 </script>
 <div style="text-align:center;">
 </div>
