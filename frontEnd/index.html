@@ -69,7 +69,7 @@
     var app = new Vue({
         el: '#login',
         data: {
-            username: "user",
+            username: "provider",
             pass: "qq",
         },
         methods: {
@@ -89,7 +89,7 @@
                             if (res["role"] == "manager") {
 
                             } else if (res["role"] == "provider") {
-
+                                window.location.href = "modelProviderList.html";
                             } else {
                                 window.location.href = "modelList.html";
                             }

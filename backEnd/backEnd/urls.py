@@ -21,11 +21,9 @@ from django.conf.urls import url
 urlpatterns = [
     url(r'^$', view.hello),
     path('login',view.login),
-    path('backEnd/manageService',view.manageService),
+    path('queryModels', view.queryModels),
+    path('uploadModel', view.uploadModel),
+    path('manageModel',view.manageModel),
     path('backEnd/deleteService',view.deleteService),
-    path('backEnd/invokeService',view.invokeService), #调用服务接口
-    path('backEnd/queryTask',view.queryTask), #调用服务接口
-    path('backEnd/queryTasks',view.queryTasks), #调用服务接口
     path('getIdentity',view.getIdentity),
-    path('backEnd/dongcang/queryInfos',view.queryInfos), 
 ]

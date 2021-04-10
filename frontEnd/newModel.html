@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <script src="jquery-3.4.1.min.js"></script>
+    <script src="js/checklogin.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script src="bootstrap/js/bootstrap.js"></script>
+    <script src="vue.js"></script>
+    <link rel="stylesheet" href="bootstrap/css/bootstrap.css"></link>
+    <title>New Model</title>
+
+</head>
+
+<body>
+    <div id="nModel" class="row" style="margin-top: 40px;">
+        <div class="col-md-6" style="margin:0 auto" style="text-align: center;">
+            <h4 style="text-align: center;">New Model</h4>
+            <div class="form-group">
+                <label for="mName">Model Name</label>
+                <input class="form-control" id="mName" v-model="mName" placeholder="Model Name" required></input>
+            </div>
+            <div class="form-group">
+                <label for="mDesc">Model Description</label>
+                <input class="form-control" id="mDesc" v-model="mDesc" placeholder="Model Description" required></input>
+            </div>
+            <div class="form-group">
+                <label for="mFrame">Model Framework</label>
+                <select id="mFrame" v-model="mFrame" class="form-control">
+                    <option value="sklearn">Scikit-Learn</option>
+                    <option value="pytorch">Pytorch</option>
+                </select>
+            </div>
+            <div class="form-group">
+                   <label for="mFile" style="display: block">Model File Upload, Status: <span style="color:red" v-if="filename=='null'">{{status}}</span><span style="color:blue" v-else>{{status}}</span></label>
+                   <input type="file" id="mFile" name="mFile" />
+                   <br/><br/>
+                   <input style="width:100px" class="btn btn-primary" onclick="FileUpload()" value="Upload"/>
+                   <input type="hidden" id="filename" v-model="filename" />
+            </div>
+            <button id="send" v-on:click="addModel" class="btn btn-primary">Add Model</button>
+        </div>
+    </div>
+
+</body>
+
+</html>
+<script>
+    var app = new Vue({
+        el: '#nModel',
+        data: {
+            username: "provider",
+            pass: "qq",
+            filename:"null",
+            mName:"",
+            mDesc:"",
+            mFrame:"sklearn",
+            status: "Not Uploaded",
+        },
+        methods: {
+            addModel: function (id) {
+                if(this.filename=="null")
+                {
+                    alert("Please upload model file first!");
+                    return false;
+                }
+                if(confirm("Do you want to add new model?"))
+                {
+                    $.ajax({
+                    type: "POST",
+                    url: "http://xtra3090.d2.comp.nus.edu.sg:8000/manageModel",
+                    xhrFields: {withCredentials: true},
+                    data: {
+                        modelName: app.$data.mName,
+                        modelDescription: app.$data.mDesc,
+
+                    },
+                    success: function (res) {
+                        if (res["status"] != 200) {
+                            alert(res["error"]);
+                        } else {
+                            if (res["role"] == "manager") {
+
+                            } else if (res["role"] == "provider") {
+                                window.location.href = "modelProviderList.html";
+                            } else {
+                                window.location.href = "modelList.html";
+                            }
+                        }
+                    },
+                });
+                }
+
+            }
+        },
+    });
+
+    function FileUpload() {
+        var form_data = new FormData();
+        var file_info = $('#mFile')[0].files[0];
+        form_data.append('file', file_info);
+        // Add file type determination based on different frameworks
+        if(file_info==undefined)
+        {
+            alert("You haven't selected any model file!");
+            return false
+        }
+        $.ajax({
+            url: 'http://xtra3090.d2.comp.nus.edu.sg:8000/uploadModel',
+            xhrFields: {withCredentials: true},
+            type: 'POST',
+            data: form_data,
+            processData: false,
+            contentType: false,
+            success: function (res) {
+                if(res.status == 200){
+                    app.$data.filename = res.filename;
+                    app.$data.status = "Uploaded";
+                }else{
+                    app.$data.status = res.reason;
+                }
+
+            }
+        });
+    }
+</script>
