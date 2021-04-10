@@ -3,6 +3,16 @@ from django.http import HttpResponse
 import pymongo
 import json
 from bson import json_util
+from functools import wraps
+
+def check_login(f):
+ @wraps(f)
+ def inner(request,*arg,**kwargs):
+  if request.session.get('is_login')=='1':
+   return f(request,*arg,**kwargs)
+  else:
+   return HttpResponse(json.dumps({"status": 301, "error": "Not logged in!"}), content_type="application/json")
+ return inner
 
 def hello(request):
     return HttpResponse("Hello world ! ")
@@ -22,18 +32,26 @@ def queryTasks(request):
     return HttpResponse(json.dumps(list(result)), content_type="application/json")
 
 def login(request):
-    result = mycol.find({"username":request.GET['username']})
+    result = mycol.find({"username":request.POST['username']})
     r = list(result)
     if len(r) == 0: # 没找到值
         result = {"status":404, "error": "User not found!"}
         print("User not found")
     else:
         item = r[0]
-        if item["pswd"] != request.GET['pass']:
+        if item["pswd"] != request.POST['pass']:
             result = {"status": 201, "error": "Wrong password!"}
         else:
             result = {"status": 200, "role": item["role"]}
+            request.session['is_login'] = '1'
+            request.session["username"] = request.POST["username"]
+            request.session["role"] = item["role"]
+            print(request.session['is_login'])
     return HttpResponse(json.dumps(result), content_type="application/json")
+
+@check_login
+def getIdentity(request):
+    return HttpResponse(json.dumps({"status": 200, "role": request.session["role"], "username":request.session["username"]}), content_type="application/json")
 
 def queryTask(request):
     if 'id' in request.GET:
