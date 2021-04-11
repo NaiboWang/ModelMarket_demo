@@ -43,6 +43,7 @@ def login(request):
             request.session['is_login'] = '1'
             request.session["username"] = request.POST["username"]
             request.session["role"] = item["role"]
+            request.session.set_expiry(1200)
     return HttpResponse(json.dumps(result), content_type="application/json")
 
 @check_login
