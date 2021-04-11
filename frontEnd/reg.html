@@ -1,0 +1,104 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Register</title>
+
+    <!--图标库 可无视-->
+    <link rel='stylesheet' href='css/font-awesome.min.css'>
+<link rel='stylesheet' href='bootstrap/css/bootstrap.min.css'>
+    <!--核心样式-->
+    <link rel="stylesheet" href="css/style.css">
+
+</head>
+<body>
+
+<div class="container">
+    <div class="card" style="width:500px">
+        <h3 style="text-align: center">Machine Learning Model Market</h3>
+        <h2 class="title">User Register</h2>
+        <div id="login">
+            <div class="input-container">
+                <input type="text" id="username" v-model="username" name="username" required="required"/>
+                <label>Username</label>
+                <div class="bar"></div>
+            </div>
+            <div class="input-container">
+                <input type="password" v-model="pass" id="pass" required="required"/>
+                <label>Password</label>
+                <div class="bar"></div>
+            </div>
+            <div class="input-container">
+                <label style="position:relative;margin-top: -30px" for="rRole">Role</label>
+                <select class="form-control" v-model="role" id="rRole">
+                    <option value="user">user</option>
+                    <option value="provider">provider</option>
+                </select>
+
+                <div class="bar"></div>
+            </div>
+            <div class="button-container">
+                <button id="register" v-on:click="reg" style="margin-top: 10px"><span>Register</span></button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src='js/jquery.min.js'></script>
+<script src="js/script.js"></script>
+<script src="vue.js"></script>
+<script>
+    var app = new Vue({
+        el: '#login',
+        data: {
+            username: "",
+            pass: "",
+            role:"user",
+        },
+        methods: {
+            reg: function (id) {
+                if(this.username == "" || this.pass == "")
+                {
+                    alert("Please fill in all the fields first!");
+                    return false;
+                }
+                if(confirm("Do you really want to register?"))
+                {
+                    $.ajax({
+                    type: "POST",
+                    url: "http://xtra3090.d2.comp.nus.edu.sg:8000/register",
+                    xhrFields: {withCredentials: true},
+                    data: {
+                        username: app.$data.username,
+                        pass: app.$data.pass,
+                        role: app.$data.role,
+                    },
+                    success: function (res) {
+                        if (res["status"] != 200) {
+                            alert(res["reason"]);
+                        } else {
+                            alert("Register successful! Please login.");
+                            window.location.href = "index.html";
+                        }
+                    },
+                });
+                }
+
+            }
+        },
+    });
+
+    function cdk() {
+        if (event.keyCode == 13) {
+            document.getElementById("enter").click();
+            return false;
+        }
+    }
+
+    document.onkeydown = cdk;
+</script>
+<div style="text-align:center;">
+</div>
+</body>
+</html>
+

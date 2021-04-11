@@ -11,3 +11,12 @@ $.ajax({
             }
         },
 });
+function logout()
+{
+    $.ajax({
+            type: "GET",
+            url: "http://xtra3090.d2.comp.nus.edu.sg:8000/logout",
+            xhrFields: {withCredentials: true},
+    });
+    window.location.href="index.html"
+}

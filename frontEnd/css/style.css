@@ -40,10 +40,6 @@ body {
   width: 100%;
   margin: 0 auto 100px;
 }
-.container.active .card:first-child {
-  background: #f2f2f2;
-  margin: 0 15px;
-}
 .container.active .card:nth-child(2) {
   background: #fafafa;
   margin: 0 10px;
@@ -110,13 +106,6 @@ body {
   /* Inputs */
   /* Button */
   /* Alt Card */
-}
-.card:first-child {
-  background: #fafafa;
-  height: 10px;
-  border-radius: 5px 5px 0 0;
-  margin: 0 10px;
-  padding: 0;
 }
 .card .title {
   position: relative;
@@ -213,7 +202,7 @@ body {
 .card .button-container button span {
   position: relative;
   z-index: 1;
-  color: #ddd;
+  color: black;
   transition: 0.3s ease;
 }
 .card .button-container button:before {

@@ -21,9 +21,12 @@ from django.conf.urls import url
 urlpatterns = [
     url(r'^$', view.hello),
     path('login',view.login),
+    path('logout', view.logout),
+    path('register',view.register),
     path('queryModels', view.queryModels),
+    path('queryModel', view.queryModel),
     path('uploadModel', view.uploadModel),
     path('manageModel',view.manageModel),
-    path('backEnd/deleteService',view.deleteService),
+    path('deleteModel',view.deleteModel),
     path('getIdentity',view.getIdentity),
 ]

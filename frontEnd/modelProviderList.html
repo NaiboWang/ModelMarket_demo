@@ -3,7 +3,6 @@
 
 <head>
     <script src="jquery-3.4.1.min.js"></script>
-    <script src="js/checklogin.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
@@ -17,7 +16,7 @@
 <body>
 <div class="row" style="margin-top: 40px;">
     <div style="margin:0 auto;width: 60%;min-width: 500px;" id="serviceList">
-        <h5> Hello,{{username}}! [{{role}}] <a href="index.html" style="float: right">logout</a></h5>
+        <h5> Hello,{{username}}! [{{role}}] <a href="javascript:void(0)" onclick="logout()" style="float: right">logout</a></h5>
         <h4 style="text-align: center;">Model List</h4>
         <div style="max-height: 700px;overflow: auto;margin-bottom: 10px">
             <table style="table-layout: fixed;" class="table table-hover">
@@ -32,17 +31,17 @@
                 <tbody>
                 <tr v-for="i in list.length">
                     <td>{{i}}</td>
-                    <td style="overflow: hidden;">{{list[i-1]["name"]}}</td>
-                    <td style="height: 30px;white-space: nowrap;overflow: hidden;">{{list[i-1]["url"]}}</td>
-                    <td><a href="javascript:void(0)" v-on:click="browseService(list[i-1]['id'])">View</a></td>
-                    <td v-if="type==3"><a href="javascript:void(0)"
-                                          v-on:click="modifyService(list[i-1]['id'],list[i-1]['url'])">Modify</a></td>
-                    <td><a href="javascript:void(0)" v-on:click="deleteService(list[i-1]['id'])">Delete</a></td>
+                    <td style="overflow: hidden;">{{list[i-1]["modelName"]}}</td>
+                    <td style="height: 30px;white-space: nowrap;overflow: hidden;">{{list[i-1]["username"]}}</td>
+                    <td><a href="javascript:void(0)" v-on:click="browseModel(list[i-1]['id'])">View</a></td>
+                    <td><a href="javascript:void(0)"
+                           v-on:click="modelManage(list[i-1]['id'])">Modify</a></td>
+                    <td><a href="javascript:void(0)" v-on:click="deleteModel(list[i-1]['id'])">Delete</a></td>
                 </tr>
                 </tbody>
             </table>
         </div>
-        <a href="javascript:void(0)" v-on:click="newModel" class="btn btn-primary">New Model</a>
+        <a href="javascript:void(0)" v-on:click="modelManage(-1)" class="btn btn-primary">New Model</a>
     </div>
 </div>
 
@@ -50,47 +49,44 @@
 
 </html>
 <script>
-    function getUrlParam(name) {
-        var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)"); //构造一个含有目标参数的正则表达式对象
-        var r = window.location.search.substr(1).match(reg); //匹配目标参数
-        if (r != null) return unescape(r[2]);
-        return "http://183.129.170.180:8041"; //返回参数值,默认后台地址
-    }
-
     var app = new Vue({
         el: '#serviceList',
         data: {
             username: "Loading...",
-            role:"Loading...",
+            role: "Loading...",
             list: [],
             type: 3, //记录服务行为
         },
         methods: {
-            newModel: function () {
-                window.location.href = "newModel.html";
+            modelManage: function (ids) {
+                window.location.href = "modelManagement.html?id=" + ids;
             },
             modifyService: function (id, url) {
-                let message = { //显示flowchart
-                    type: 1, //消息类型，传递链接
-                    message: {
-                        "id": id,
-                    }
-                };
-                ws.send(JSON.stringify(message));
-                window.location.href = url; //跳转链接
             },
-            browseService: function (id) {
-                window.location.href = "serviceInfo.html?id=" + id + "&backEndAddressServiceWrapper=" + app.$data.backEndAddressServiceWrapper; //跳转链接
+            browseModel: function (id) {
+                window.location.href = "modelInfo.html?id=" + id; //跳转链接
             },
-            deleteService: function (id) {
-                if (confirm("确定要删除服务吗？")) {
-                    $.get(app.$data.backEndAddressServiceWrapper + "/backEnd/deleteService?id=" + id, function (res) {
-                        $.get(app.$data.backEndAddressServiceWrapper + "/backEnd/queryServices", function (re) {
-                            result = re.sort(desc);
-                            app.$data.list = result;
-                        });
+            deleteModel: function (id) {
+                if (confirm("Do you really want to delete this model?")) {
+                    $.ajax({
+                        type: "GET",
+                        url: "http://xtra3090.d2.comp.nus.edu.sg:8000/deleteModel",
+                        data: {
+                            "id": id,
+                        },
+                        xhrFields: {withCredentials: true},
+                        success: function (res) {
+                            $.ajax({
+                                type: "GET",
+                                url: "http://xtra3090.d2.comp.nus.edu.sg:8000/queryModels",
+                                xhrFields: {withCredentials: true},
+                                success: function (res) {
+                                    result = res.sort(desc);
+                                    app.$data.list = result;
+                                },
+                            });
+                        },
                     });
-
                 }
             },
         }
@@ -99,11 +95,14 @@
     var desc = function (x, y) {
         return (x["id"] < y["id"]) ? 1 : -1
     }
-    $.get("http://xtra3090.d2.comp.nus.edu.sg:8000/queryModels", function (re) {
-        result = re.sort(desc);
-        app.$data.list = result;
-        if (getUrlParam("type") == "1") {
-            app.$data.type = 2;
-        }
+    $.ajax({
+        type: "GET",
+        url: "http://xtra3090.d2.comp.nus.edu.sg:8000/queryModels",
+        xhrFields: {withCredentials: true},
+        success: function (res) {
+            result = res.sort(desc);
+            app.$data.list = result;
+        },
     });
 </script>
+<script src="js/checklogin.js"></script>

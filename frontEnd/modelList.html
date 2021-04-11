@@ -3,7 +3,6 @@
 
 <head>
     <script src="jquery-3.4.1.min.js"></script>
-    <script src="js/checklogin.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
@@ -17,7 +16,7 @@
 <body>
 <div class="row" style="margin-top: 40px;">
     <div style="margin:0 auto;width: 60%;min-width: 500px;" id="serviceList">
-        <h5> Hello,{{username}}! [{{role}}] <a style="float: right">logout</a></h5>
+        <h5> Hello,{{username}}! [{{role}}] <a href="javascript:void(0)" onclick="logout()" style="float: right">logout</a></h5>
         <h4 style="text-align: center;">Model List</h4>
         <div style="max-height: 700px;overflow: auto;margin-bottom: 10px">
             <table style="table-layout: fixed;" class="table table-hover">
@@ -26,18 +25,15 @@
                     <th>ID</th>
                     <th>Model Name</th>
                     <th>Author</th>
-                    <th v-bind:colspan="type">Operations</th>
+                    <th>Operation</th>
                 </tr>
                 </thead>
                 <tbody>
                 <tr v-for="i in list.length">
                     <td>{{i}}</td>
-                    <td style="overflow: hidden;">{{list[i-1]["name"]}}</td>
-                    <td style="height: 30px;white-space: nowrap;overflow: hidden;">{{list[i-1]["url"]}}</td>
-                    <td><a href="javascript:void(0)" v-on:click="browseService(list[i-1]['id'])">查看服务信息</a></td>
-                    <td v-if="type==3"><a href="javascript:void(0)"
-                                          v-on:click="modifyService(list[i-1]['id'],list[i-1]['url'])">修改服务</a></td>
-                    <td><a href="javascript:void(0)" v-on:click="deleteService(list[i-1]['id'])">删除服务</a></td>
+                    <td style="overflow: hidden;">{{list[i-1]["modelName"]}}</td>
+                    <td style="height: 30px;white-space: nowrap;overflow: hidden;">{{list[i-1]["username"]}}</td>
+                    <td><a href="javascript:void(0)" v-on:click="browseModel(list[i-1]['id'])">View</a></td>
                 </tr>
                 </tbody>
             </table>
@@ -49,50 +45,16 @@
 
 </html>
 <script>
-    function getUrlParam(name) {
-        var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)"); //构造一个含有目标参数的正则表达式对象
-        var r = window.location.search.substr(1).match(reg); //匹配目标参数
-        if (r != null) return unescape(r[2]);
-        return "http://183.129.170.180:8041"; //返回参数值,默认后台地址
-    }
-
     var app = new Vue({
         el: '#serviceList',
         data: {
             username: "Loading...",
-            role:"Loading...",
+            role: "Loading...",
             list: [],
-            type: 3, //记录服务行为
-            backEndAddressServiceWrapper: getUrlParam("backEndAddressServiceWrapper"),
         },
         methods: {
-            newModel: function () {
-                window.location.href = "newService.html?backEndAddressServiceWrapper=" + app.$data.backEndAddressServiceWrapper;
-                ;
-            },
-            modifyService: function (id, url) {
-                let message = { //显示flowchart
-                    type: 1, //消息类型，传递链接
-                    message: {
-                        "id": id,
-                    }
-                };
-                ws.send(JSON.stringify(message));
-                window.location.href = url; //跳转链接
-            },
-            browseService: function (id) {
-                window.location.href = "serviceInfo.html?id=" + id + "&backEndAddressServiceWrapper=" + app.$data.backEndAddressServiceWrapper; //跳转链接
-            },
-            deleteService: function (id) {
-                if (confirm("确定要删除服务吗？")) {
-                    $.get(app.$data.backEndAddressServiceWrapper + "/backEnd/deleteService?id=" + id, function (res) {
-                        $.get(app.$data.backEndAddressServiceWrapper + "/backEnd/queryServices", function (re) {
-                            result = re.sort(desc);
-                            app.$data.list = result;
-                        });
-                    });
-
-                }
+            browseModel: function (id) {
+                window.location.href = "modelInfo.html?id=" + id; //跳转链接
             },
         }
     });
@@ -100,11 +62,14 @@
     var desc = function (x, y) {
         return (x["id"] < y["id"]) ? 1 : -1
     }
-    $.get(app.$data.backEndAddressServiceWrapper + "/backEnd/queryServices", function (re) {
-        result = re.sort(desc);
-        app.$data.list = result;
-        if (getUrlParam("type") == "1") {
-            app.$data.type = 2;
-        }
+    $.ajax({
+        type: "GET",
+        url: "http://xtra3090.d2.comp.nus.edu.sg:8000/queryModels",
+        xhrFields: {withCredentials: true},
+        success: function (res) {
+            result = res.sort(desc);
+            app.$data.list = result;
+        },
     });
 </script>
+<script src="js/checklogin.js"></script>
