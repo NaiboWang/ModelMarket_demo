@@ -8,15 +8,21 @@
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <script src="vue.js"></script>
+    <script src="js/basic_functions.js"></script>
     <link rel="stylesheet" href="bootstrap/css/bootstrap.css"></link>
     <title>Model List</title>
-
+    <style>
+        tr {
+            text-align: center;
+        }
+    </style>
 </head>
 
 <body>
 <div class="row" style="margin-top: 40px;">
     <div style="margin:0 auto;width: 60%;min-width: 500px;" id="serviceList">
-        <h5> Hello,{{username}}! [{{role}}] <a href="javascript:void(0)" onclick="logout()" style="float: right">logout</a></h5>
+        <h5> Hello,{{username}}! [{{role}}] <a href="javascript:void(0)" onclick="logout()"
+                                               style="float: right">logout</a></h5>
         <h4 style="text-align: center;">Model List</h4>
         <div style="max-height: 700px;overflow: auto;margin-bottom: 10px">
             <table style="table-layout: fixed;" class="table table-hover">
@@ -76,15 +82,19 @@
                         },
                         xhrFields: {withCredentials: true},
                         success: function (res) {
-                            $.ajax({
-                                type: "GET",
-                                url: "http://xtra3090.d2.comp.nus.edu.sg:8000/queryModels",
-                                xhrFields: {withCredentials: true},
-                                success: function (res) {
-                                    result = res.sort(desc);
-                                    app.$data.list = result;
-                                },
-                            });
+                            if (check_status(res)) {
+                                $.ajax({
+                                    type: "GET",
+                                    url: "http://xtra3090.d2.comp.nus.edu.sg:8000/queryModels",
+                                    xhrFields: {withCredentials: true},
+                                    success: function (res) {
+                                        if (check_status(res)) {
+                                            result = res["data"].sort(desc);
+                                            app.$data.list = result;
+                                        }
+                                    },
+                                });
+                            }
                         },
                     });
                 }
@@ -100,8 +110,10 @@
         url: "http://xtra3090.d2.comp.nus.edu.sg:8000/queryModels",
         xhrFields: {withCredentials: true},
         success: function (res) {
-            result = res.sort(desc);
-            app.$data.list = result;
+            if (check_status(res)) {
+                result = res["data"].sort(desc);
+                app.$data.list = result;
+            }
         },
     });
 </script>

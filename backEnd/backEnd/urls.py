@@ -15,18 +15,19 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from . import view
+from . import view, modelMangement
 from django.conf.urls import url
 
 urlpatterns = [
     url(r'^$', view.hello),
     path('login',view.login),
+    path('getIdentity', view.getIdentity),
     path('logout', view.logout),
     path('register',view.register),
-    path('queryModels', view.queryModels),
-    path('queryModel', view.queryModel),
-    path('uploadModel', view.uploadModel),
-    path('manageModel',view.manageModel),
-    path('deleteModel',view.deleteModel),
-    path('getIdentity',view.getIdentity),
+    path('downloadModel', modelMangement.downloadModel),
+    path('queryModels', modelMangement.queryModels),
+    path('queryModel', modelMangement.queryModel),
+    path('uploadModel', modelMangement.uploadModel),
+    path('manageModel',modelMangement.manageModel),
+    path('deleteModel',modelMangement.deleteModel),
 ]

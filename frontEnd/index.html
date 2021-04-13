@@ -6,7 +6,7 @@
 
     <!--图标库 可无视-->
     <link rel='stylesheet' href='css/font-awesome.min.css'>
-
+    <script src="js/basic_functions.js"></script>
     <!--核心样式-->
     <link rel="stylesheet" href="css/style.css">
 
@@ -34,35 +34,6 @@
             </div>
         </div>
     </div>
-<!--    <div class="card alt">-->
-<!--        <div class="toggle"></div>-->
-<!--        <h1 class="title">Register-->
-<!--            <div class="close"></div>-->
-<!--        </h1>-->
-<!--        <form>-->
-<!--            <div class="input-container">-->
-<!--                <input id="rUsername" required="required"/>-->
-<!--                <label for="rUsername">Username</label>-->
-<!--                <div class="bar"></div>-->
-<!--            </div>-->
-<!--            <div class="input-container">-->
-<!--                <input type="password" id="rPass" required="required"/>-->
-<!--                <label for="rPass">Password</label>-->
-<!--                <div class="bar"></div>-->
-<!--            </div>-->
-<!--            <div class="input-container">-->
-<!--                <select id="rRole">-->
-<!--                    <option value="user">user</option>-->
-<!--                    <option value="provider">provider</option>-->
-<!--                </select>-->
-<!--                <label for="rRole">Role</label>-->
-<!--                <div class="bar"></div>-->
-<!--            </div>-->
-<!--            <div class="button-container">-->
-<!--                <button><span>Register</span></button>-->
-<!--            </div>-->
-<!--        </form>-->
-<!--    </div>-->
 </div>
 
 <script src='js/jquery.min.js'></script>
@@ -79,7 +50,7 @@
             reg: function (){
               window.location.href="reg.html";
             },
-            loginauth: function (id) {
+            loginauth: function () {
                 $.ajax({
                     type: "POST",
                     url: "http://xtra3090.d2.comp.nus.edu.sg:8000/login",
@@ -89,13 +60,10 @@
                         pass: app.$data.pass,
                     },
                     success: function (res) {
-                        if (res["status"] != 200) {
-                            alert(res["error"]);
-                        } else {
+                        if(check_status(res))
+                        {
                             if (res["role"] == "manager") {
-
-                            } else if (res["role"] == "provider") {
-                                window.location.href = "modelProviderList.html";
+                                window.location.href = "manager.html";
                             } else {
                                 window.location.href = "modelList.html";
                             }

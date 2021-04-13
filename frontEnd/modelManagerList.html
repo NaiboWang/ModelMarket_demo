@@ -11,41 +11,41 @@
     <script src="js/basic_functions.js"></script>
     <link rel="stylesheet" href="bootstrap/css/bootstrap.css"></link>
     <title>Model List</title>
-<style>
-tr{
-    text-align: center;
-}
-</style>
+    <style>
+        tr {
+            text-align: center;
+        }
+    </style>
 </head>
 
 <body>
 <div class="row" style="margin-top: 40px;">
     <div style="margin:0 auto;width: 60%;min-width: 500px;" id="serviceList">
-        <h5> Hello,{{username}}! [{{role}}] <a href="javascript:void(0)" onclick="logout()" style="float: right">logout</a></h5>
+        <h5> Hello,{{username}}! [{{role}}] <a href="javascript:void(0)" onclick="logout()"
+                                               style="float: right">logout</a></h5>
         <h4 style="text-align: center;">Model List</h4>
         <div style="max-height: 700px;overflow: auto;margin-bottom: 10px">
             <table style="table-layout: fixed;" class="table table-hover">
                 <thead>
-                <tr style="text-align: center">
-                    <td></td>
+                <tr>
                     <th>ID</th>
                     <th>Model Name</th>
                     <th>Author</th>
-                    <th colspan="2" >Operations</th>
+                    <th v-bind:colspan="type">Operations</th>
                 </tr>
                 </thead>
                 <tbody>
-                <tr style="text-align: center" v-for="i in list.length">
-                    <td><input type="checkbox" v-model="selected_models" v-bind:value="i"></td>
+                <tr v-for="i in list.length">
                     <td>{{i}}</td>
                     <td style="overflow: hidden;">{{list[i-1]["modelName"]}}</td>
                     <td style="height: 30px;white-space: nowrap;overflow: hidden;">{{list[i-1]["username"]}}</td>
                     <td><a href="javascript:void(0)" v-on:click="browseModel(list[i-1]['id'])">View</a></td>
-                    <td><a href="javascript:void(0)" v-on:click="browseModel(list[i-1]['id'])">Buy</a></td>
+                    <!--                    <td><a href="javascript:void(0)"-->
+                    <!--                           v-on:click="modelManage(list[i-1]['id'])">Modify</a></td>-->
+                    <td><a href="javascript:void(0)" v-on:click="deleteModel(list[i-1]['id'])">Delete</a></td>
                 </tr>
                 </tbody>
             </table>
-            <a href="javascript:void(0)" v-on:click="modelManage(-1)" class="btn btn-primary">Ensemble Model</a>
         </div>
     </div>
 </div>
@@ -60,11 +60,43 @@ tr{
             username: "Loading...",
             role: "Loading...",
             list: [],
-            selected_models:[],
+            type: 2, //记录服务行为
         },
         methods: {
+            modelManage: function (ids) {
+                window.location.href = "modelManagement.html?id=" + ids;
+            },
+            modifyService: function (id, url) {
+            },
             browseModel: function (id) {
                 window.location.href = "modelInfo.html?id=" + id; //跳转链接
+            },
+            deleteModel: function (id) {
+                if (confirm("Do you really want to delete this model?")) {
+                    $.ajax({
+                        type: "GET",
+                        url: "http://xtra3090.d2.comp.nus.edu.sg:8000/deleteModel",
+                        data: {
+                            "id": id,
+                        },
+                        xhrFields: {withCredentials: true},
+                        success: function (res) {
+                            if (check_status(res)) {
+                                $.ajax({
+                                    type: "GET",
+                                    url: "http://xtra3090.d2.comp.nus.edu.sg:8000/queryModels",
+                                    xhrFields: {withCredentials: true},
+                                    success: function (res) {
+                                        if (check_status(res)) {
+                                            result = res["data"].sort(desc);
+                                            app.$data.list = result;
+                                        }
+                                    },
+                                });
+                            }
+                        },
+                    });
+                }
             },
         }
     });

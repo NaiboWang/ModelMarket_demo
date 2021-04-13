@@ -9,6 +9,7 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <script src="bootstrap/js/bootstrap.js"></script>
     <script src="vue.js"></script>
+    <script src="js/basic_functions.js"></script>
     <link rel="stylesheet" href="bootstrap/css/bootstrap.css"></link>
     <title>Model Management</title>
 
@@ -24,7 +25,8 @@
         </div>
         <div class="form-group">
             <label for="mDesc">Model Description</label>
-            <textarea class="form-control" id="mDesc" v-model="mDesc" placeholder="Model Description" required></textarea>
+            <textarea class="form-control" id="mDesc" v-model="mDesc" placeholder="Model Description"
+                      required></textarea>
         </div>
         <div class="form-group">
             <label for="mFrame">Model Framework</label>
@@ -91,9 +93,7 @@
                             }),
                         },
                         success: function (res) {
-                            if (res["status"] != 200) {
-                                alert(res["reason"]);
-                            } else {
+                            if (check_status(res)) {
                                 window.location.href = "modelProviderList.html";
                             }
                         },
@@ -108,13 +108,13 @@
         var form_data = new FormData();
         var file_info = $('#mFile')[0].files[0];
         form_data.append('file', file_info);
+        form_data.append('mId', mId);
         // Add file type determination based on different frameworks
         if (file_info == undefined) {
             alert("You haven't selected any model file!");
             return false
-        } else if(app.$data.filename != "")
-        {
-            if(!confirm("Do you really want to replace the existing model file?")) {
+        } else if (app.$data.filename != "") {
+            if (!confirm("Do you really want to replace the existing model file?")) {
                 return false;
             }
         }
@@ -126,20 +126,16 @@
             processData: false,
             contentType: false,
             success: function (res) {
-                if (res.status == 200) {
+                if (check_status(res)) {
                     app.$data.filename = res.filename;
                     app.$data.status = "Uploaded";
-                } else {
-                    app.$data.status = res.reason;
                 }
-
             }
         });
     }
 
     mId = parseInt(getUrlParam("id"));
-    if(mId != -1)
-    {
+    if (mId != -1) {
         $.ajax({
             type: "GET",
             url: "http://xtra3090.d2.comp.nus.edu.sg:8000/queryModel",
@@ -148,10 +144,14 @@
                 "id": mId,
             },
             success: function (res) {
-                app.$data.filename = res.filename;
-                app.$data.mName = res.modelName;
-                app.$data.mDesc = res.modelDescription;
-                app.$data.mFrame = res.modelFramework;
+                if(check_status(res))
+                {
+                    app.$data.filename = res["data"].filename;
+                    app.$data.mName = res["data"].modelName;
+                    app.$data.mDesc = res["data"].modelDescription;
+                    app.$data.mFrame = res["data"].modelFramework;
+                }
+
             },
         });
     }
