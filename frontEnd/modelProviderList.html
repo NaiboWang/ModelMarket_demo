@@ -76,7 +76,7 @@
                 if (confirm("Do you really want to delete this model?")) {
                     $.ajax({
                         type: "GET",
-                        url: "http://xtra3090.d2.comp.nus.edu.sg:8000/deleteModel",
+                        url: "http://192.168.163.129:8080/deleteModel",
                         data: {
                             "id": id,
                         },
@@ -85,7 +85,7 @@
                             if (check_status(res)) {
                                 $.ajax({
                                     type: "GET",
-                                    url: "http://xtra3090.d2.comp.nus.edu.sg:8000/queryModels",
+                                    url: "http://192.168.163.129:8080/queryModels",
                                     xhrFields: {withCredentials: true},
                                     success: function (res) {
                                         if (check_status(res)) {
@@ -107,7 +107,7 @@
     }
     $.ajax({
         type: "GET",
-        url: "http://xtra3090.d2.comp.nus.edu.sg:8000/queryModels",
+        url: "http://192.168.163.129:8080/queryModels?type=1",
         xhrFields: {withCredentials: true},
         success: function (res) {
             if (check_status(res)) {

@@ -2,7 +2,7 @@ function logout()
 {
     $.ajax({
             type: "GET",
-            url: "http://xtra3090.d2.comp.nus.edu.sg:8000/logout",
+            url: "http://192.168.163.129:8080/logout",
             xhrFields: {withCredentials: true},
     });
     window.location.href="index.html"
@@ -11,7 +11,7 @@ function logout()
 function check_status(result)
 {
     if(result["status"]!=200) {
-        alert(result["reason"]);
+        alert(result["msg"]);
         return false;
     }else{
         return true;

@@ -15,19 +15,24 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from . import view, modelMangement
+from . import view, modelMangement, ensemble, orderManagement
 from django.conf.urls import url
 
 urlpatterns = [
     url(r'^$', view.hello),
-    path('login',view.login),
-    path('getIdentity', view.getIdentity),
-    path('logout', view.logout),
-    path('register',view.register),
-    path('downloadModel', modelMangement.downloadModel),
-    path('queryModels', modelMangement.queryModels),
-    path('queryModel', modelMangement.queryModel),
-    path('uploadModel', modelMangement.uploadModel),
-    path('manageModel',modelMangement.manageModel),
-    path('deleteModel',modelMangement.deleteModel),
+    path('modelmarket_backend/login',view.login),
+    path('modelmarket_backend/getIdentity', view.getIdentity),
+    path('modelmarket_backend/logout', view.logout),
+    path('modelmarket_backend/register',view.register),
+    path('modelmarket_backend/getUserInfo', view.getUserInfo),
+    path('modelmarket_backend/charge', view.charge),
+    path('modelmarket_backend/changePassword', view.changePassword),
+    path('modelmarket_backend/ensemble_sklearn',ensemble.ensemble_sklearn),
+    path('modelmarket_backend/downloadModel', modelMangement.downloadModel),
+    path('modelmarket_backend/queryModels', modelMangement.queryModels),
+    path('modelmarket_backend/queryModel', modelMangement.queryModel),
+    path('modelmarket_backend/uploadModel', modelMangement.uploadModel),
+    path('modelmarket_backend/manageModel',modelMangement.manageModel),
+    path('modelmarket_backend/deleteModel',modelMangement.deleteModel),
+    path('modelmarket_backend/buyModel', orderManagement.buyModel),
 ]

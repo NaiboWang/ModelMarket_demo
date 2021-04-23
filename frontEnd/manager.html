@@ -68,11 +68,11 @@
         },
         methods: {
             downloadModel: function() {
-                window.open("http://xtra3090.d2.comp.nus.edu.sg:8000/downloadModel?id="+sId);
+                window.open("http://192.168.163.129:8080/downloadModel?id="+sId);
             },
         }
     });
-    $.get("http://xtra3090.d2.comp.nus.edu.sg:8000/queryModel?id=" + sId, function(result) {
+    $.get("http://192.168.163.129:8080/queryModel?id=" + sId, function(result) {
         if(check_status(result)) {
             app.$data.model = result["data"];
             app.$data.show = true;

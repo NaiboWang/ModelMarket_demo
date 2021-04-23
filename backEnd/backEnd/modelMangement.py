@@ -5,11 +5,12 @@ Model Management
 from django.http import HttpResponse
 import json
 import os, time
-from bson import json_util
+from bson import json_util, Regex
 from django.http import FileResponse
 from .dbconfig import *
 from functools import wraps
-from .view import check_login
+from .view import check_login, check_parameters, json_wrap
+import re
 
 
 # 检查Id对应模型是否存在
@@ -24,15 +25,16 @@ def check_id(f):
                     return f(request, res[0], *arg, **kwargs)
                 else:
                     return HttpResponse(
-                        json.dumps({"status": 404, "reason": "We can't find model infos based on given ID!"}),
+                        json.dumps({"status": 404, "msg": "We can't find model infos based on given ID!"}),
                         content_type="application/json")
             except:
                 return HttpResponse(
-                    json.dumps({"status": 404, "reason": "We can't find model infos based on given ID!"}),
+                    json.dumps({"status": 404, "msg": "We can't find model infos based on given ID!"}),
                     content_type="application/json")
         else:
-            return HttpResponse(json.dumps({"status": 404, "reason": "Please specify the model ID!"}),
+            return HttpResponse(json.dumps({"status": 400, "msg": "Please specify the model ID!"}),
                                 content_type="application/json")
+
     return inner
 
 
@@ -40,33 +42,34 @@ def check_id(f):
 def check_idAuth(f):
     @wraps(f)
     def inner(request, result, *arg, **kwargs):
-        if result['username'] == request.session["username"] or request.session["role"] == "manager":
+        if result['author'] == request.session["username"] or request.session["role"] == "manager":
             return f(request, result, *arg, **kwargs)
         else:
             return HttpResponse(
-                json.dumps({"status": 501, "reason": "Sorry, you don't have the permission to do this!"}),
+                json.dumps({"status": 501, "msg": "Sorry, you don't have the permission to do this!"}),
                 content_type="application/json")
+
     return inner
 
 
 @check_id
 def queryModel(request, result):
-    return HttpResponse(json.dumps({"status":200, "data": result}, default=json_util.default), content_type="application/json")
+    return HttpResponse(json.dumps({"status": 200, "data": result}, default=json_util.default),
+                        content_type="application/json")
 
 
+@check_parameters(["query", "pageNum", "pageSize"])
 def queryModels(request):
-    if request.session["role"] == "provider":
-        result = models.find({"username": request.session["username"]})
-    else:
-        result = models.find()
-    return HttpResponse(json.dumps({"status":200, "data": list(result)}, default=json_util.default), content_type="application/json")
+    # 下面展示了如何使用正则表达式匹配在mongodb中查询
+    result, total = queryTable(models, request)
+    return json_wrap({"status": 200, "data": result, "total":total})
 
 
 @check_login
 def manageModel(request):
     data = request.POST['paras']
     data = json.loads(data)
-    data["username"] = request.session["username"]
+    data["author"] = request.session["username"]
     if int(data["id"]) == -1:
         result = list(models.find({}).sort("id", -1).skip(0).limit(1))
         if len(result) == 0:
@@ -76,12 +79,12 @@ def manageModel(request):
         models.insert_one(data)
     else:
         result = list(models.find({"id": int(data["id"])}))[0]
-        if result['username'] == request.session["username"]:
+        if result['author'] == request.session["username"]:
             models.delete_one({"id": int(data["id"])})
             models.insert_one(data)
             return HttpResponse(json.dumps({"status": 200}), content_type="application/json")
         else:
-            return HttpResponse(json.dumps({"status": 400, "reason": "Not correct user, permission denied."}),
+            return HttpResponse(json.dumps({"status": 400, "msg": "Not correct user, permission denied."}),
                                 content_type="application/json")
     return HttpResponse(
         json.dumps({"status": 200, "id": int(data["id"])}), content_type="application/json")
@@ -102,7 +105,7 @@ def uploadModel(request):
             file_obj = request.FILES.get('file')
             mId = request.POST.get('mId')
         if int(mId) == -1:
-            result = list(models.find({"username": request.session["username"]}))
+            result = list(models.find({"author": request.session["username"]}))
             model_id = len(result) + 1
         else:
             model_id = mId
@@ -115,7 +118,7 @@ def uploadModel(request):
         f.close()
         return HttpResponse(json.dumps({"status": 200, "filename": filename}), content_type="application/json")
     except Exception as e:
-        return HttpResponse(json.dumps({"status": str(Exception), "reason": str(e)}), content_type="application/json")
+        return HttpResponse(json.dumps({"status": str(Exception), "msg": str(e)}), content_type="application/json")
 
 
 @check_id
