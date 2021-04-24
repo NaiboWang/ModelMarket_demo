@@ -20,7 +20,7 @@ def check_id(f):
         if 'id' in request.GET:
             tid = request.GET['id']
             try:
-                res = list(models.find({"id": int(tid)}))
+                res = list(models.find({"id": int(tid)}, {"_id": 0}))
                 if len(res) > 0:
                     return f(request, res[0], *arg, **kwargs)
                 else:
@@ -58,16 +58,26 @@ def queryModel(request, result):
                         content_type="application/json")
 
 
-@check_parameters(["query", "pageNum", "pageSize"])
+@check_parameters(["query", "pageNum", "pageSize", "fields"])
 def queryModels(request):
     # 下面展示了如何使用正则表达式匹配在mongodb中查询
     result, total = queryTable(models, request)
-    return json_wrap({"status": 200, "data": result, "total":total})
+    return json_wrap({"status": 200, "data": result, "total": total})
+
+
+@check_login
+@check_parameters(["query", "pageNum", "pageSize", "fields"])
+def queryModelsManagement(request):
+    if request.session["role"] == "manager":
+        return queryModels(request)
+    else:
+        result, total = queryTable(models, request, additionalConditions=[{"author": request.session["username"]}])
+        return json_wrap({"status": 200, "data": result, "total": total})
 
 
 @check_login
 def manageModel(request):
-    data = request.POST['paras']
+    data = request.POST['params']
     data = json.loads(data)
     data["author"] = request.session["username"]
     if int(data["id"]) == -1:

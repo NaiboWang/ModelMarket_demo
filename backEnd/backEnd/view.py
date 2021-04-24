@@ -129,7 +129,7 @@ def register(request):
     result = myauths.find({"username": request.POST['username']})
     r = list(result)
     if len(r) == 0:  # 没找到值
-        user = {"username": request.POST['username'], "pswd": request.POST['pass'], "role": "user"}
+        user = {"username": request.POST['username'], "pswd": request.POST['pass'], "role": "user", "deposit":0}
         myauths.insert_one(user)
         return HttpResponse(json.dumps({"status": 200}), content_type="application/json")
     else:

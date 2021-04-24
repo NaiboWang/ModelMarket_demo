@@ -34,5 +34,6 @@ urlpatterns = [
     path('modelmarket_backend/uploadModel', modelMangement.uploadModel),
     path('modelmarket_backend/manageModel',modelMangement.manageModel),
     path('modelmarket_backend/deleteModel',modelMangement.deleteModel),
+    path('modelmarket_backend/queryModelsManagement', modelMangement.queryModelsManagement),
     path('modelmarket_backend/buyModel', orderManagement.buyModel),
 ]
