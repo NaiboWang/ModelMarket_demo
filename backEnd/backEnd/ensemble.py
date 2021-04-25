@@ -23,19 +23,19 @@ from .dbconfig import *
 
 
 @check_login
-@check_parameters(["models"])
+@check_parameters(["orders","weights"])
 def ensemble_sklearn(request):
-    model_ids = request.GET["models"].split(",")
+    model_ids = request.GET["orders"].split(",")
     model_ids = list(map(int, model_ids))
-    res = list(models.find({"id":{"$in":model_ids}}))
+    weights = request.GET["weights"].split(",")
+    weights = list(map(int, weights))
+    res = list(orders.find({"id":{"$in":model_ids}}))
     classifiers = []
-    length = []
     for model in res:
         filename = model["filename"]
         classifier = joblib.load(os.getcwd() + "/models/" + filename)
         classifiers.append((filename,classifier))
-        length.append(1)
-    eclf = VotingClassifier(estimators=classifiers, voting='soft', weights=length)
+    eclf = VotingClassifier(estimators=classifiers, voting='soft', weights=weights)
     joblib.dump(eclf, os.getcwd() + '/models/ensemble.model')
     filename = os.getcwd() + '/models/ensemble.model'
     file = open(filename, 'rb')
