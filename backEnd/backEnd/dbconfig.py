@@ -39,8 +39,9 @@ def queryTable(table, request, additionalColumns={"_id":0}, additionalConditions
             query = table.find({"$or": conditions}, additionalColumns)
         else:
             query = table.find({queryConditions[0]: regex}, additionalColumns)
-    # Todo 添加按照指定字段排序功能
-    query.skip(pageSize * (pageNum - 1)).limit(pageSize).sort([(queryConditions[0], 1)])
+    sortCondition = [(request.POST["sortProp"], int(request.POST["order"]))]
+    # .collation({"locale": "en"})不区分大小写
+    query.skip(pageSize * (pageNum - 1)).limit(pageSize).collation({"locale": "en"}).sort(sortCondition)
     result = list(query)
     total = query.count()
     return result, total
