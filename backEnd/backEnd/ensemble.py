@@ -36,6 +36,7 @@ def ensemble_sklearn(request):
         classifier = joblib.load(os.getcwd() + "/models/" + filename)
         classifiers.append((filename,classifier))
     eclf = VotingClassifier(estimators=classifiers, voting='soft', weights=weights)
+    eclf = BaggingClassifier()
     joblib.dump(eclf, os.getcwd() + '/models/ensemble.model')
     filename = os.getcwd() + '/models/ensemble.model'
     file = open(filename, 'rb')

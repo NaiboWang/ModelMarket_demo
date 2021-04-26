@@ -111,6 +111,23 @@ def manageModel(request):
 @check_login
 @check_id
 @check_idAuth
+@check_parameters(["status"])
+def changeModelStatus(request, result):
+    if request.GET["status"] == "true":
+        status = True
+    else:
+        status = False
+    models.update_one({"id": int(request.GET["id"])}, {'$set': {"status": status}})
+    if status:
+        msg = "Normal"
+    else:
+        msg = "Disabled"
+    return HttpResponse(json.dumps({"status": 200,"msg":"Model Status has been successfully set to "+msg}), content_type="application/json")
+
+
+@check_login
+@check_id
+@check_idAuth
 def deleteModel(request, result):
     models.delete_one({"id": int(request.GET["id"])})
     return HttpResponse(json.dumps({"status": 200}), content_type="application/json")
