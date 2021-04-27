@@ -9,13 +9,6 @@
           </advancedOptions>
         </fileTransfer>
       </webServer>
-      <webServer id="ce4a6c1a-c375-4a9b-8c4c-9ebb14561654" name="local">
-        <fileTransfer rootFolder="/home/naibo" accessType="SFTP" host="192.168.163.129" port="22" sshConfigId="e69484b5-d477-44d1-828f-bcf54e8d576d" sshConfig="naibo@192.168.163.129:22 password">
-          <advancedOptions>
-            <advancedOptions dataProtectionLevel="Private" keepAliveTimeout="0" passiveMode="true" shareSSLContext="true" />
-          </advancedOptions>
-        </fileTransfer>
-      </webServer>
     </option>
   </component>
 </project>
