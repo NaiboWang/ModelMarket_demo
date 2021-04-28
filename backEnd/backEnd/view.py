@@ -164,7 +164,7 @@ def login(request):
         elif not item["status"]:
             result = {"status": 202, "msg": "Sorry, this account has been disabled!"}
         else:
-            result = {"status": 200, "role": item["role"]}
+            result = {"status": 200, "role": item["role"],'msg':'Login Success!'}
             request.session['is_login'] = '1'
             request.session["username"] = request.POST["username"]
             request.session["role"] = item["role"]
@@ -175,7 +175,7 @@ def login(request):
 @check_login
 def logout(request):
     request.session.flush()
-    return HttpResponse(json.dumps({"status": 200, "msg": "Log out success!"}), content_type="application/json")
+    return HttpResponse(json.dumps({"status": 200, "msg": "Logout success!"}), content_type="application/json")
 
 
 @check_login
@@ -203,7 +203,7 @@ def register(request):
         else:
             user["id"] = int(res[0]["id"]) + 1
         myauths.insert_one(user)
-        return HttpResponse(json.dumps({"status": 200}), content_type="application/json")
+        return HttpResponse(json.dumps({"status": 200, "msg": "Register Success, please log in!"}), content_type="application/json")
     else:
         return HttpResponse(json.dumps({"status": 401, "msg": "User already exists!"}),
                             content_type="application/json")
