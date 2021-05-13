@@ -10,6 +10,7 @@ from bson import json_util
 from django.http import FileResponse
 from django.http import HttpResponse
 from .netdrawer import main as getDot
+import requests
 from .dbconfig import *
 from .tools import utc_now
 from .view import check_login, check_parameters, json_wrap
@@ -150,9 +151,12 @@ def uploadModel(request):
         for chunk in file_obj.chunks():
             f.write(chunk)
         f.close()
-        getStructurePic(filename.replace(".onnx", ""))
+        # getStructurePic(filename)
+        # 版本2
+        # Todo 同一时间只能展现一个模型，如何解决？
+        requests.get('http://localhost/modelmarket_netron/' + filename)
         return HttpResponse(
-            json.dumps({"status": 200, "filename": filename, "structurePic": filename.replace(".onnx", ".svg")}),
+            json.dumps({"status": 200, "filename": filename, "structurePic": filename+".svg"}),
             content_type="application/json")
     except Exception as e:
         return HttpResponse(json.dumps({"status": str(Exception), "msg": str(e)}), content_type="application/json")
@@ -184,8 +188,9 @@ def downloadModel(request):
     return response
 
 
-# 得到ONNX模型的结构图
+# 得到ONNX模型的结构图,版本1
 def getStructurePic(filename):
     getDot(filename + ".onnx", filename + ".dot")
     command = 'dot -Tsvg pics/dots/%s.dot -o pics/%s.svg' % (filename, filename)
     os.popen(command)
+

@@ -38,7 +38,6 @@ urlpatterns = [
     path('modelmarket_backend/manageModel', modelMangement.manageModel),
     path('modelmarket_backend/deleteModel', modelMangement.deleteModel),
     path('modelmarket_backend/changeModelStatus', modelMangement.changeModelStatus),
-    path('modelmarket_backend/getStructurePic', modelMangement.getStructurePic),
     path('modelmarket_backend/queryModelsManagement', modelMangement.queryModelsManagement),
     path('modelmarket_backend/buyModel', orderManagement.buyModel),
     path('modelmarket_backend/queryPurchasedOrders', orderManagement.queryPurchasedOrders),
