@@ -72,7 +72,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'backEnd.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 
@@ -123,6 +122,8 @@ USE_TZ = True
 STATIC_URL = '/static/'
 CORS_ALLOW_CREDENTIALS = True
 CORS_ORIGIN_ALLOW_ALL = True
+FILE_UPLOAD_MAX_MEMORY_SIZE = 26214400  #上传文件大小，改成25M
+DATA_UPLOAD_MAX_MEMORY_SIZE = 26214400	#上传数据大小，也改成了25M
 
 # 为了防止cookie被阻止，这里要设置这两行，因为新的浏览器设置
 SESSION_COOKIE_SAMESITE = 'none'

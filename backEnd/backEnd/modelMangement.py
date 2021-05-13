@@ -2,18 +2,17 @@
 Model Management
 """
 
-from django.http import HttpResponse
-from datetime import datetime, timezone, timedelta
 import json
-import os, time
-from bson import json_util, Regex
-from django.http import FileResponse
-from .dbconfig import *
+import os
 from functools import wraps
 
+from bson import json_util
+from django.http import FileResponse
+from django.http import HttpResponse
+from .netdrawer import main as getDot
+from .dbconfig import *
 from .tools import utc_now
 from .view import check_login, check_parameters, json_wrap
-import re
 
 
 # 检查Id对应模型是否存在
@@ -63,7 +62,6 @@ def queryModel(request, result):
 
 @check_parameters(["query", "pageNum", "pageSize", "fields", "sortProp", "order"])
 def queryModels(request):
-    # 下面展示了如何使用正则表达式匹配在mongodb中查询
     result, total = queryTable(models, request, additionalConditions=[{"status": True}])
     return json_wrap({"status": 200, "data": result, "total": total})
 
@@ -122,7 +120,8 @@ def changeModelStatus(request, result):
         msg = "Normal"
     else:
         msg = "Disabled"
-    return HttpResponse(json.dumps({"status": 200,"msg":"Model Status has been successfully set to "+msg}), content_type="application/json")
+    return HttpResponse(json.dumps({"status": 200, "msg": "Model Status has been successfully set to " + msg}),
+                        content_type="application/json")
 
 
 @check_login
@@ -145,12 +144,16 @@ def uploadModel(request):
         else:
             model_id = mId
         file_extension = file_obj.name.split(".")[-1]
-        filename = request.session["username"] + "_model_" + str(model_id) + utc_now().strftime("_%Y-%m-%d-%H-%M-%S.") + file_extension
+        filename = request.session["username"] + "_model_" + str(model_id) + utc_now().strftime(
+            "_%Y-%m-%d-%H-%M-%S.") + file_extension
         f = open(os.getcwd() + "/models/" + filename, 'wb')
         for chunk in file_obj.chunks():
             f.write(chunk)
         f.close()
-        return HttpResponse(json.dumps({"status": 200, "filename": filename}), content_type="application/json")
+        getStructurePic(filename.replace(".onnx", ""))
+        return HttpResponse(
+            json.dumps({"status": 200, "filename": filename, "structurePic": filename.replace(".onnx", ".svg")}),
+            content_type="application/json")
     except Exception as e:
         return HttpResponse(json.dumps({"status": str(Exception), "msg": str(e)}), content_type="application/json")
 
@@ -179,3 +182,10 @@ def downloadModel(request):
     response['Content-Disposition'] = 'attachment;filename="' + result[0]['filename'] + '"'
     print(response['Content-Disposition'])
     return response
+
+
+# 得到ONNX模型的结构图
+def getStructurePic(filename):
+    getDot(filename + ".onnx", filename + ".dot")
+    command = 'dot -Tsvg pics/dots/%s.dot -o pics/%s.svg' % (filename, filename)
+    os.popen(command)
