@@ -73,12 +73,9 @@ def get_structure(name):
     return jsonify({"status": 200, "msg": name + '.svg'})
 
 
-@app.route('/test')
+@app.route('/modelmarket_netron/test.info')
 def test():
-    t = jdThread()
-    t.start()
-    t.join()  # 使线程一个一个执行
-    return str(t.get_result())
+    return "test"
 
 
 if __name__ == '__main__':
