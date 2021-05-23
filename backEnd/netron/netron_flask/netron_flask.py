@@ -39,12 +39,19 @@ class Device:
                 id = i
                 break
         self.lock.release()  # 解锁
-        browser.get('http://localhost/modelmarket/netron/index.html?model=%s' % name)
-        WebDriverWait(browser, 10).until(
-            EC.presence_of_element_located((By.XPATH, '//*[@id="background"]'))
-        )
-        action = ActionChains(browser)
-        action.key_down(Keys.CONTROL).key_down(Keys.ALT).send_keys('e').key_up(Keys.CONTROL).key_up(Keys.ALT).perform()
+        try:
+            browser.get('http://localhost/modelmarket/netron/index.html?model=%s' % name)
+            WebDriverWait(browser, 10).until(
+                EC.presence_of_element_located((By.XPATH, '//*[@id="background"]'))
+            )
+            action = ActionChains(browser)
+            action.key_down(Keys.CONTROL).key_down(Keys.ALT).send_keys('e').key_up(Keys.CONTROL).key_up(Keys.ALT).perform()
+        except:
+            self.lock.acquire()  # 锁住n个浏览器变量
+            browsers[id]["status"] = 'waiting'
+            self.lock.release()  # 解锁
+            self.sem.release()  # 解锁，离开该资源
+            return 301
         self.lock.acquire()  # 锁住n个浏览器变量
         browsers[id]["status"] = 'waiting'
         self.lock.release()  # 解锁
@@ -59,10 +66,13 @@ class jdThread(threading.Thread):
     def __init__(self,name):
         threading.Thread.__init__(self)
         self.name = name
+        self.status = 200
 
     def run(self):
-        name = device.get_model_structure(self.name)  # 将num加1，并输出原来的数据和+1之后的数据
-        print("Done with", name)
+        self.status = device.get_model_structure(self.name)  # 将num加1，并输出原来的数据和+1之后的数据
+
+    def get_status(self):
+        return self.status
 
 
 @app.route('/modelmarket_netron/<name>')
@@ -70,7 +80,9 @@ def get_structure(name):
     t = jdThread(name)
     t.start()
     t.join()  # 等待线程执行完毕
-    return jsonify({"status": 200, "msg": name + '.svg'})
+    status = t.get_status()
+    print("Done with", name, ", status is:", status)
+    return jsonify({"status": status, "msg": name + '.svg'})
 
 
 @app.route('/modelmarket_netron/test.info')
@@ -79,7 +91,7 @@ def test():
 
 
 if __name__ == '__main__':
-    path = os.path.abspath(os.getcwd() + '/../../pics')
+    path = os.path.abspath(os.getcwd() + '/../../static/pics')
     chrome_options = webdriver.ChromeOptions()
     prefs = {'profile.default_content_settings.popups': 0, 'download.default_directory': path}
     chrome_options.add_experimental_option('prefs', prefs)

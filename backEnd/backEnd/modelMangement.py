@@ -4,6 +4,7 @@ Model Management
 
 import json
 import os
+import random
 from functools import wraps
 
 from bson import json_util
@@ -63,8 +64,12 @@ def queryModel(request, result):
 
 @check_parameters(["query", "pageNum", "pageSize", "fields", "sortProp", "order"])
 def queryModels(request):
-    result, total = queryTable(models, request, additionalConditions=[{"status": True}])
-    return json_wrap({"status": 200, "data": result, "total": total})
+    result, total = queryTable(models, request, additionalConditions=[{"status": True}], aggregationCondition=[{'$lookup': {'from': "auths", "localField": "author", "foreignField": "username", "as": "author_info"}},
+     {'$unwind': {'path': '$author_info', 'preserveNullAndEmptyArrays': True}},
+     {'$addFields': {'nickname': "$author_info.nickname"}},
+     {'$project': {'author_info': 0}}
+     ])
+    return json_wrap({"status": 200, "data": result, "total": total},log=False)
 
 
 @check_login
@@ -147,19 +152,23 @@ def uploadModel(request):
         file_extension = file_obj.name.split(".")[-1]
         filename = request.session["username"] + "_model_" + str(model_id) + utc_now().strftime(
             "_%Y-%m-%d-%H-%M-%S.") + file_extension
-        f = open(os.getcwd() + "/models/" + filename, 'wb')
+        f = open(os.getcwd() + "/dynamic/models/" + filename, 'wb')
         for chunk in file_obj.chunks():
             f.write(chunk)
         f.close()
         # getStructurePic(filename)
         # 版本2
-        # Todo 同一时间只能展现一个模型，如何解决？
-        requests.get('http://localhost/modelmarket_netron/' + filename)
-        return HttpResponse(
-            json.dumps({"status": 200, "filename": filename, "structurePic": filename+".svg"}),
-            content_type="application/json")
+        response = requests.get('http://localhost/modelmarket_netron/' + filename)
+        if json.loads(response.text)["status"] != 301:
+            return HttpResponse(
+                json.dumps({"status": 200, "filename": filename, "structurePic": filename + ".svg"}),
+                content_type="application/json")
+        else:
+            return HttpResponse(
+                json.dumps({"status": 200, "filename": filename, "structurePic": "301"}),
+                content_type="application/json")
     except Exception as e:
-        return HttpResponse(json.dumps({"status": str(Exception), "msg": str(e)}), content_type="application/json")
+        return HttpResponse(json.dumps({"status": 500, "msg": str(e)}), content_type="application/json")
 
 
 @check_login
@@ -179,7 +188,7 @@ def downloadModel(request):
             return json_wrap({"status": 404, "msg": "We can't find model infos based on given ID!"})
         elif result[0]["buyer"] != request.session["username"] and request.session["role"] != "manager":
             return json_wrap({"status": 501, "msg": "Sorry, you don't have the permission to download this model!"})
-    filename = os.getcwd() + "/models/" + result[0]['filename']
+    filename = os.getcwd() + "/dynamic/models/" + result[0]['filename']
     file = open(filename, 'rb')
     response = FileResponse(file)
     response['Content-Type'] = 'application/octet-stream'
@@ -194,3 +203,22 @@ def getStructurePic(filename):
     command = 'dot -Tsvg pics/dots/%s.dot -o pics/%s.svg' % (filename, filename)
     os.popen(command)
 
+@check_login
+def uploadFile(request):
+    try:
+        file_obj = request.FILES.get('file[]')
+        file_extension = file_obj.name.split(".")[-1]
+        if file_extension in ['png','svg','jpg','jpeg','bmp','gif']:
+            file_type = 'image'
+        else:
+            file_type = 'file'
+        filename = request.session["username"] + "_"+file_type+"_" + utc_now().strftime(
+            "_%Y-%m-%d-%H-%M-%S") + str(random.random() * 10).replace(".", '') + '.' +file_extension
+        f = open(os.getcwd() + "/static/descFiles/" + filename, 'wb')
+        for chunk in file_obj.chunks():
+            f.write(chunk)
+        f.close()
+
+        return json_wrap({"status": 200, "filename": filename, 'file_type':file_type})
+    except Exception as e:
+        return HttpResponse(json.dumps({"status": 500, "msg": str(e)}), content_type="application/json")

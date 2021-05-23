@@ -11,6 +11,9 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 
 import os
+from Crypto.PublicKey import RSA
+from Crypto.Cipher import PKCS1_OAEP, PKCS1_v1_5
+from base64 import b64decode, b16decode
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -51,6 +54,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
+    'xMiddleware.logger.RequestLogMiddleware',
 ]
 
 ROOT_URLCONF = 'backEnd.urls'
@@ -156,3 +160,60 @@ CORS_ALLOW_HEADERS = (
     'x-csrftoken',
     'x-requested-with',
 )
+
+RSA_PRIVATE_KEY = RSA.import_key(open('rsa_1024_priv.pem').read())
+# 实例化加密套件
+CIPHER = PKCS1_v1_5.new(RSA_PRIVATE_KEY)
+
+# 日志信息相关
+
+LOGGING = {
+    # 版本
+    'version': 1,
+    # 是否禁止默认配置的记录器
+    'disable_existing_loggers': False,
+    'formatters': {
+        'standard': {
+            'format': '{"time": "%(asctime)s", "level": "%(levelname)s", "method": "%(method)s", "username": "%(username)s", "role": "%(role)s","sip": "%(sip)s", "dip": "%(dip)s", "path": "%(path)s", "status_code": "%(status_code)s", "reason_phrase": "%(reason_phrase)s", "func": "%(module)s.%(funcName)s:%(lineno)d",  "message": "%(message)s", "body": "%(body)s","response":"%(response)s"}',
+            'datefmt': '%Y-%m-%d %H:%M:%S'
+        }
+    },
+    # 过滤器
+    'filters': {
+        'request_info': {'()': 'xMiddleware.logger.RequestLogFilter'},
+    },
+    'handlers': {
+        # 标准输出
+        'console': {
+            'level': 'INFO',
+            'class': 'logging.StreamHandler',
+        },
+        # 自定义 handlers，输出到文件
+        'restful_api': {
+            'level': 'DEBUG',
+            # 时间滚动切分
+            'class': 'logging.StreamHandler',
+            # 'filename': os.path.join(os.getcwd(), 'logs/web-log.log'),
+            # 'formatter': 'standard',
+            # # 调用过滤器
+            # 'filters': ['request_info'],
+            # # 每天凌晨切分
+            # 'when': 'MIDNIGHT',
+            # # 保存 30 天
+            # 'backupCount': 30,
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': 'INFO', #
+            'propagate': False
+        },
+        'web.log': {
+            'handlers': ['restful_api'],
+            'level': 'INFO',
+            # 此记录器处理过的消息就不再让 django 记录器再次处理了
+            'propagate': False
+        },
+    }
+}

@@ -34,12 +34,12 @@ def ensemble_sklearn(request):
         classifiers = []
         for model in res:
             filename = model["filename"]
-            classifier = joblib.load(os.getcwd() + "/models/" + filename)
+            classifier = joblib.load(os.getcwd() + "/dynamic/models/" + filename)
             classifiers.append((filename,classifier))
         eclf = VotingClassifier(estimators=classifiers, voting='soft', weights=weights)
         eclf = BaggingClassifier()
-        joblib.dump(eclf, os.getcwd() + '/models/ensemble.model')
-        filename = os.getcwd() + '/models/ensemble.model'
+        joblib.dump(eclf, os.getcwd() + '/dynamic/models/ensemble.model')
+        filename = os.getcwd() + '/dynamic/models/ensemble.model'
         file = open(filename, 'rb')
         response = FileResponse(file)
         response['Content-Type'] = 'application/octet-stream'

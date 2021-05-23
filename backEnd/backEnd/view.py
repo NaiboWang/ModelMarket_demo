@@ -7,16 +7,25 @@ import json
 from functools import wraps
 from .dbconfig import *
 from bson import json_util
+from .tools import utc_now, decrypt_message
 
-from .tools import utc_now
+
+# 不打log的情况
+class NoLogHTTPResponse(HttpResponse):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.no_log = True
 
 
-def json_wrap(res):
-    return HttpResponse(json.dumps(res, default=json_util.default), content_type="application/json")
+def json_wrap(res, log=True):
+    if not log:
+        return NoLogHTTPResponse(json.dumps(res, default=json_util.default), content_type="application/json")
+    else:
+        return HttpResponse(json.dumps(res, default=json_util.default), content_type="application/json")
 
 
 def hello(request):
-    return HttpResponse("Hello world!")
+    return NoLogHTTPResponse("Hello world!")
 
 
 def check_login(f):
@@ -65,11 +74,11 @@ def check_parameters(paras):
 def getIdentity(request):
     if request.session.get('is_login') == '1':
         return HttpResponse(
-            json.dumps({"status": 200, "role": request.session["role"], "username": request.session["username"]}),
+            json.dumps({"status": 200, "role": request.session["role"], "nickname": request.session["nickname"]}),
             content_type="application/json")
     else:
         return HttpResponse(
-            json.dumps({"status": 200, "role": "guest", "username": "guest"}),
+            json.dumps({"status": 200, "role": "guest", "nickname": "guest"}),
             content_type="application/json")
 
 
@@ -113,6 +122,16 @@ def changeUserStatus(request):
     return HttpResponse(json.dumps(result), content_type="application/json")
 
 
+@check_login
+@check_parameters(["nickname"])
+def changeUserInfo(request):
+    myauths.update_one({"username": request.session["username"]},
+                       {'$set': {"nickname": request.GET['nickname']}})
+    request.session['nickname'] = request.GET['nickname']
+    return HttpResponse(json.dumps({"status": 200, "msg": "User info change successfully!"}),
+                        content_type="application/json")
+
+
 @check_manager
 @check_parameters(['id'])
 def resetPassword(request):
@@ -152,21 +171,25 @@ def setUserDeposit(request, deposit=0, username=False):
 
 @check_parameters(["username", "pass"])
 def login(request):
-    result = myauths.find({"username": request.POST['username']})
+    pattern = re.compile(r'.*' + request.POST['username'] + '.*', re.I)
+    regex = Regex.from_native(pattern)
+    regex.flags ^= re.UNICODE
+    result = myauths.find({"username": regex})
     r = list(result)
     if len(r) == 0:  # 没找到值
         result = {"status": 404, "msg": "User not found!"}
     else:
         item = r[0]
-        print(item["status"])
-        if item["pswd"] != request.POST['pass']:
+        password = decrypt_message(request.POST['pass'])
+        if item["pswd"] != password:
             result = {"status": 201, "msg": "Wrong password!"}
         elif not item["status"]:
             result = {"status": 202, "msg": "Sorry, this account has been disabled!"}
         else:
-            result = {"status": 200, "role": item["role"],'msg':'Login Success!'}
+            result = {"status": 200, "role": item["role"], 'msg': 'Login Success!'}
             request.session['is_login'] = '1'
             request.session["username"] = request.POST["username"]
+            request.session["nickname"] = item["nickname"]
             request.session["role"] = item["role"]
             request.session.set_expiry(1200)
     return HttpResponse(json.dumps(result), content_type="application/json")
@@ -182,8 +205,9 @@ def logout(request):
 def changePassword(request):
     result = myauths.find({"username": request.session["username"]})
     r = list(result)
-    if r[0]["pswd"] == request.POST["oldPass"]:
-        myauths.update_one({"username": request.session["username"]}, {'$set': {"pswd": request.POST['pass']}})
+    if r[0]["pswd"] == decrypt_message(request.POST["oldPass"]):
+        myauths.update_one({"username": request.session["username"]},
+                           {'$set': {"pswd": decrypt_message(request.POST['pass'])}})
         logout(request)
         return HttpResponse(json.dumps({"status": 200}), content_type="application/json")
     else:
@@ -192,10 +216,15 @@ def changePassword(request):
 
 
 def register(request):
-    result = myauths.find({"username": request.POST['username']})
+    # 不区分大小写的用户名
+    pattern = re.compile(r'.*' + request.POST['username'] + '.*', re.I)
+    regex = Regex.from_native(pattern)
+    regex.flags ^= re.UNICODE
+    result = myauths.find({"username": regex})
     r = list(result)
     if len(r) == 0:  # 没找到值
-        user = {"username": request.POST['username'], "pswd": request.POST['pass'], "role": "user", "deposit": 0,
+        user = {"username": request.POST['username'], "pswd": decrypt_message(request.POST['pass']), "role": "user",
+                "deposit": 0,
                 "status": True, "register_time": utc_now().strftime("%Y-%m-%d %H:%M:%S")}
         res = list(myauths.find({}).sort("id", -1).skip(0).limit(1))
         if len(res) == 0:
@@ -203,7 +232,8 @@ def register(request):
         else:
             user["id"] = int(res[0]["id"]) + 1
         myauths.insert_one(user)
-        return HttpResponse(json.dumps({"status": 200, "msg": "Register Success, please log in!"}), content_type="application/json")
+        return HttpResponse(json.dumps({"status": 200, "msg": "Register Success, please log in!"}),
+                            content_type="application/json")
     else:
         return HttpResponse(json.dumps({"status": 401, "msg": "User already exists!"}),
                             content_type="application/json")

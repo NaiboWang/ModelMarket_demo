@@ -195,7 +195,7 @@ host.BrowserHost = class {
         });
 
         this.document.getElementById('version').innerText = this.version;
-        let url = 'http://localhost/modelmarket/models/'+ getQueryVariable("model");
+        let url = 'http://localhost/modelmarket/dynamic/models/'+ getQueryVariable("model");
         this._openModel(url, null);
         return;
 

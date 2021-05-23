@@ -111,8 +111,8 @@ def GetPydotGraph(
 
 
 def main(input="",output=""):  # type: () -> None
-    input = 'models/' + input
-    output = 'pics/dots/' + output
+    input = 'static/models/' + input
+    output = 'static/pics/dots/' + output
     model = ModelProto()
     with open(input, 'rb') as fid:
         content = fid.read()

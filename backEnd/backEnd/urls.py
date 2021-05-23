@@ -19,12 +19,13 @@ from . import view, modelMangement, ensemble, orderManagement
 from django.conf.urls import url
 
 urlpatterns = [
-    url(r'^$', view.hello),
+    url(r'^modelmarket_backend/$', view.hello),
     path('modelmarket_backend/login', view.login),
     path('modelmarket_backend/getIdentity', view.getIdentity),
     path('modelmarket_backend/logout', view.logout),
     path('modelmarket_backend/register', view.register),
     path('modelmarket_backend/getUserInfo', view.getUserInfo),
+    path('modelmarket_backend/changeUserInfo', view.changeUserInfo),
     path('modelmarket_backend/charge', view.charge),
     path('modelmarket_backend/resetPassword', view.resetPassword),
     path('modelmarket_backend/getUserList', view.getUserList),
@@ -35,6 +36,7 @@ urlpatterns = [
     path('modelmarket_backend/queryModels', modelMangement.queryModels),
     path('modelmarket_backend/queryModel', modelMangement.queryModel),
     path('modelmarket_backend/uploadModel', modelMangement.uploadModel),
+    path('modelmarket_backend/uploadFile', modelMangement.uploadFile),
     path('modelmarket_backend/manageModel', modelMangement.manageModel),
     path('modelmarket_backend/deleteModel', modelMangement.deleteModel),
     path('modelmarket_backend/changeModelStatus', modelMangement.changeModelStatus),

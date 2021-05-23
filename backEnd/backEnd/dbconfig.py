@@ -7,10 +7,35 @@ mydb = myclient['modelmarket']
 myauths = mydb["auths"]
 models = mydb["models"]
 orders = mydb["orders"]
+logs = mydb["logs"]
+
+# {
+#   $project: {
+#     _id: 1,
+#     product: 1,
+#     money: 1,
+#     name: 1
+#   }
+# }
+# https://blog.csdn.net/u011113654/article/details/80353013
+
+# 展示了如何多表查询并提取指定字段
+models_with_info = models.aggregate(
+    [{'$lookup': {'from': "auths", "localField": "author", "foreignField": "username", "as": "author_info"}},
+     {'$unwind': {'path': '$author_info', 'preserveNullAndEmptyArrays': True}},
+     {'$addFields': {'nickname': "$author_info.nickname"}},
+     {'$project': {'author_info': 0}}
+     ])
 
 
 # 根据不同条件查询
-def queryTable(table, request, additionalColumns={"_id":0}, additionalConditions=False):
+def queryTable(table, request, additionalColumns={"_id": 0}, additionalConditions=False, aggregationCondition=False):
+    models_with_info = models.aggregate(
+        [{'$lookup': {'from': "auths", "localField": "author", "foreignField": "username", "as": "author_info"}},
+         {'$unwind': {'path': '$author_info', 'preserveNullAndEmptyArrays': True}},
+         {'$addFields': {'nickname': "$author_info.nickname"}},
+         {'$project': {'author_info': 0}}
+         ])
     pageNum = int(request.POST["pageNum"])
     pageSize = int(request.POST["pageSize"])
     query = request.POST["query"]
@@ -42,6 +67,9 @@ def queryTable(table, request, additionalColumns={"_id":0}, additionalConditions
     sortCondition = [(request.POST["sortProp"], int(request.POST["order"]))]
     # .collation({"locale": "en"})不区分大小写
     query.skip(pageSize * (pageNum - 1)).limit(pageSize).collation({"locale": "en"}).sort(sortCondition)
+    # 如果有多表联合查询的条件，先写在这
+    # if aggregationCondition:
+    #     query = query.aggreate(aggregationCondition)
     result = list(query)
     total = query.count()
     return result, total
