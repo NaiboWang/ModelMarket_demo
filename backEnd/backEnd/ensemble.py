@@ -4,7 +4,7 @@ from .dbconfig import *
 from django.http import HttpResponse
 import json
 from bson import json_util
-from .view import check_login, check_parameters, json_wrap
+from .view import check_login, check_parameters
 from .modelMangement import downloadModel
 from sklearn import datasets
 from sklearn.model_selection import cross_val_score
@@ -20,6 +20,7 @@ import pickle
 import warnings
 from django.http import FileResponse
 from .dbconfig import *
+from .tools import json_wrap
 
 
 @check_login

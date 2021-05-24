@@ -11,8 +11,8 @@ from django.http import FileResponse
 from .dbconfig import *
 from functools import wraps
 from .modelMangement import check_id
-from .tools import utc_now, get_time_int
-from .view import check_login, check_parameters, json_wrap, getUserDeposit, setUserDeposit
+from .tools import utc_now, get_time_int, json_wrap
+from .view import check_login, check_parameters, getUserDeposit, setUserDeposit
 
 
 @check_login
@@ -57,20 +57,20 @@ def buyModel(request, result=""):
 def queryPurchasedOrders(request):
     if request.session["role"] == "manager":
         result, total = queryTable(orders, request)
-        return json_wrap({"status": 200, "data": result, "total": total})
+        return json_wrap({"status": 200, "data": result, "total": total}, no_response=True)
     else:
         result, total = queryTable(orders, request, additionalConditions=[{"buyer": request.session["username"]}])
-        return json_wrap({"status": 200, "data": result, "total": total})
+        return json_wrap({"status": 200, "data": result, "total": total}, no_response=True)
 
 @check_login
 @check_parameters(["query", "pageNum", "pageSize", "fields", "sortProp", "order"])
 def querySoldOrders(request):
     if request.session["role"] == "manager":
         result, total = queryTable(orders, request)
-        return json_wrap({"status": 200, "data": result, "total": total})
+        return json_wrap({"status": 200, "data": result, "total": total}, no_response=True)
     else:
         result, total = queryTable(orders, request, additionalConditions=[{"author": request.session["username"]}])
-        return json_wrap({"status": 200, "data": result, "total": total})
+        return json_wrap({"status": 200, "data": result, "total": total}, no_response=True)
 
 @check_login
 @check_parameters(["id"])
@@ -78,12 +78,12 @@ def queryOrder(request):
     result = list(orders.find({"id": int(request.GET["id"])}))
     if len(result) == 0:
         return HttpResponse(
-            json.dumps({"status": 404, "msg": "We can't find order infos based on given ID!"}),
+            json.dumps({"status": 404, "msg": "We can't find order info based on given ID!"}),
             content_type="application/json")
     if result[0]["author"] == request.session["username"] or request.session["role"] == "manager":
-        return json_wrap({"status": 200, "data": result[0]})
+        return json_wrap({"status": 200, "data": result[0]}, no_response=True)
     elif result[0]["buyer"] == request.session["username"]:
         result = list(orders.find({"id": int(request.GET["id"])},{"income_author":0,"income_manager":0}))
-        return json_wrap({"status": 200, "data": result[0]})
+        return json_wrap({"status": 200, "data": result[0]}, no_response=True)
     else:
         return json_wrap({"status": 503, "msg": "Sorry, you don't have the permission to see this information!"})

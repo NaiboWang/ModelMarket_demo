@@ -13,8 +13,8 @@ from django.http import HttpResponse
 from .netdrawer import main as getDot
 import requests
 from .dbconfig import *
-from .tools import utc_now
-from .view import check_login, check_parameters, json_wrap
+from .tools import utc_now, NoLogHTTPResponse,NoResponseLogHTTPResponse, json_wrap, NoRequestLogHTTPResponse
+from .view import check_login, check_parameters
 
 
 # 检查Id对应模型是否存在
@@ -58,7 +58,7 @@ def check_idAuth(f):
 
 @check_id
 def queryModel(request, result):
-    return HttpResponse(json.dumps({"status": 200, "data": result}, default=json_util.default),
+    return NoResponseLogHTTPResponse(json.dumps({"status": 200, "data": result}, default=json_util.default),
                         content_type="application/json")
 
 
@@ -69,7 +69,7 @@ def queryModels(request):
      {'$addFields': {'nickname': "$author_info.nickname"}},
      {'$project': {'author_info': 0}}
      ])
-    return json_wrap({"status": 200, "data": result, "total": total},log=False)
+    return json_wrap({"status": 200, "data": result, "total": total}, no_response=True)
 
 
 @check_login
@@ -77,10 +77,10 @@ def queryModels(request):
 def queryModelsManagement(request):
     if request.session["role"] == "manager":
         result, total = queryTable(models, request)
-        return json_wrap({"status": 200, "data": result, "total": total})
+        return json_wrap({"status": 200, "data": result, "total": total}, no_response=True)
     else:
         result, total = queryTable(models, request, additionalConditions=[{"author": request.session["username"]}])
-        return json_wrap({"status": 200, "data": result, "total": total})
+        return json_wrap({"status": 200, "data": result, "total": total}, no_response=True)
 
 
 @check_login

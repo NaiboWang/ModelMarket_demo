@@ -5,6 +5,7 @@ import threading
 import socket
 from bson import json_util
 from backEnd.dbconfig import *
+from backEnd.tools import utc_now
 
 from django.utils.deprecation import MiddlewareMixin
 
@@ -60,9 +61,8 @@ class RequestLogMiddleware(MiddlewareMixin):
             body.update(dict(request.GET))
         else:
             body.update(dict(request.POST))
-
-        local.body = body
-        local.path = request.path
+        local.time = utc_now().strftime("%Y-%m-%d %H:%M:%S")
+        local.func = request.path.replace("/modelmarket_backend/","")
         local.method = request.method
         if "username" in request.session:
             local.username = request.session["username"]
@@ -76,15 +76,20 @@ class RequestLogMiddleware(MiddlewareMixin):
             local.nickname = request.session["nickname"]
         else:
             local.nickname = "Guest"
-
+        if hasattr(request,'additionalInfo'):
+            local.additionalInfo = request.additionalInfo
+        if hasattr(response,'no_request_log'):
+            local.request_body = "Not show here to protect information"
+        else:
+            local.request_body = body
+        local.response = json.loads(bytes.decode(response.content))
+        if response.status_code != 200 or hasattr(response,'no_response_log'):
+            local.response = "Not show here to save space"
         local.sip = request.META.get('REMOTE_ADDR', '')
         local.dip = socket.gethostbyname(socket.gethostname())
-
-        local.response = json.loads(bytes.decode(response.content))
-        if response.status_code != 200:
-            local.response = ""
         local.status_code = response.status_code
         local.reason_phrase = response.reason_phrase
+        local.help = ""
         self.apiLogger.info('system-auto')
         logs.insert_one(local.__dict__)
         return response

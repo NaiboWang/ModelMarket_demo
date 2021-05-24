@@ -15,7 +15,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from . import view, modelMangement, ensemble, orderManagement
+from . import view, modelMangement, ensemble, orderManagement, logs
 from django.conf.urls import url
 
 urlpatterns = [
@@ -45,4 +45,6 @@ urlpatterns = [
     path('modelmarket_backend/queryPurchasedOrders', orderManagement.queryPurchasedOrders),
     path('modelmarket_backend/querySoldOrders', orderManagement.querySoldOrders),
     path('modelmarket_backend/queryOrder', orderManagement.queryOrder),
+    path('modelmarket_backend/queryLog', logs.queryLog),
+    path('modelmarket_backend/queryLogs', logs.queryLogs),
 ]

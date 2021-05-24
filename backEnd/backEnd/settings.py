@@ -176,6 +176,7 @@ LOGGING = {
         'standard': {
             'format': '{"time": "%(asctime)s", "level": "%(levelname)s", "method": "%(method)s", "username": "%(username)s", "role": "%(role)s","sip": "%(sip)s", "dip": "%(dip)s", "path": "%(path)s", "status_code": "%(status_code)s", "reason_phrase": "%(reason_phrase)s", "func": "%(module)s.%(funcName)s:%(lineno)d",  "message": "%(message)s", "body": "%(body)s","response":"%(response)s"}',
             'datefmt': '%Y-%m-%d %H:%M:%S'
+# { "_id" : ObjectId("60aa656bca4210950a41fa52"), "body" : { "id" : [ "15" ] }, "path" : "/modelmarket_backend/queryModel", "method" : "GET", "username" : "provider", "role" : "user", "nickname" : "Model Provider", "sip" : "127.0.0.1", "dip" : "127.0.1.1", "response" : { "status" : 200, "data" : { "id" : 15, "modelName" : "test", "modelDescription" : "test2sdf", "howToRunAndDetails" : "adgs\nadsf1`23213\n\n## sadf\n\n11`1sd\n\n", "modelFramework" : "sklearn", "tags" : [ "asd" ], "filename" : "provider_model_9_2021-05-23-18-49-57.onnx", "price" : 0, "structurePic" : "provider_model_9_2021-05-23-18-49-57.onnx.svg", "status" : true, "created_time" : "2021-05-23 18:51:25", "updated_time" : "2021-05-23 20:13:23", "author" : "provider" } }, "status_code" : 200, "reason_phrase" : "OK" }
         }
     },
     # 过滤器
@@ -204,11 +205,11 @@ LOGGING = {
         },
     },
     'loggers': {
-        'django': {
-            'handlers': ['console'],
-            'level': 'INFO', #
-            'propagate': False
-        },
+        # 'django': {
+        #     'handlers': ['console'],
+        #     'level': 'INFO', #
+        #     'propagate': False
+        # },
         'web.log': {
             'handlers': ['restful_api'],
             'level': 'INFO',

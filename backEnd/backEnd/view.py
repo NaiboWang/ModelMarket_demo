@@ -7,21 +7,7 @@ import json
 from functools import wraps
 from .dbconfig import *
 from bson import json_util
-from .tools import utc_now, decrypt_message
-
-
-# 不打log的情况
-class NoLogHTTPResponse(HttpResponse):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.no_log = True
-
-
-def json_wrap(res, log=True):
-    if not log:
-        return NoLogHTTPResponse(json.dumps(res, default=json_util.default), content_type="application/json")
-    else:
-        return HttpResponse(json.dumps(res, default=json_util.default), content_type="application/json")
+from .tools import utc_now, decrypt_message, NoLogHTTPResponse, NoResponseLogHTTPResponse, NoRequestLogHTTPResponse, json_wrap
 
 
 def hello(request):
@@ -73,11 +59,11 @@ def check_parameters(paras):
 
 def getIdentity(request):
     if request.session.get('is_login') == '1':
-        return HttpResponse(
+        return NoLogHTTPResponse(
             json.dumps({"status": 200, "role": request.session["role"], "nickname": request.session["nickname"]}),
             content_type="application/json")
     else:
-        return HttpResponse(
+        return NoLogHTTPResponse(
             json.dumps({"status": 200, "role": "guest", "nickname": "guest"}),
             content_type="application/json")
 
@@ -85,14 +71,14 @@ def getIdentity(request):
 @check_login
 def getUserInfo(request):
     result = myauths.find({"username": request.session['username']}, {"pswd": 0})
-    return json_wrap({"status": 200, "data": list(result)[0]})
+    return json_wrap({"status": 200, "data": list(result)[0]}, no_response=True)
 
 
 @check_parameters(["query", "pageNum", "pageSize", "fields", "sortProp", "order"])
 def getUserList(request):
     if request.session.get('role') == 'manager':
         result, total = queryTable(myauths, request, additionalColumns={"pswd": 0, "_id": 0})
-        return json_wrap({"status": 200, "data": list(result), "total": total})
+        return json_wrap({"status": 200, "data": list(result), "total": total}, no_response=True)
     else:
         return HttpResponse(
             json.dumps({"status": 303, "msg": "Sorry, you don't have permission to check this list!"}),
@@ -192,11 +178,14 @@ def login(request):
             request.session["nickname"] = item["nickname"]
             request.session["role"] = item["role"]
             request.session.set_expiry(1200)
-    return HttpResponse(json.dumps(result), content_type="application/json")
+    return NoRequestLogHTTPResponse(json.dumps(result), content_type="application/json")
 
 
 @check_login
 def logout(request):
+    request.additionalInfo = {"username":request.session["username"],
+                              "nickname":request.session["nickname"],
+                              "role": request.session["role"]}
     request.session.flush()
     return HttpResponse(json.dumps({"status": 200, "msg": "Logout success!"}), content_type="application/json")
 
@@ -209,9 +198,9 @@ def changePassword(request):
         myauths.update_one({"username": request.session["username"]},
                            {'$set': {"pswd": decrypt_message(request.POST['pass'])}})
         logout(request)
-        return HttpResponse(json.dumps({"status": 200}), content_type="application/json")
+        return NoRequestLogHTTPResponse(json.dumps({"status": 200}), content_type="application/json")
     else:
-        return HttpResponse(json.dumps({"status": 401, "msg": "Old password is not correct!"}),
+        return NoRequestLogHTTPResponse(json.dumps({"status": 401, "msg": "Old password is not correct!"}),
                             content_type="application/json")
 
 
@@ -232,10 +221,10 @@ def register(request):
         else:
             user["id"] = int(res[0]["id"]) + 1
         myauths.insert_one(user)
-        return HttpResponse(json.dumps({"status": 200, "msg": "Register Success, please log in!"}),
+        return NoRequestLogHTTPResponse(json.dumps({"status": 200, "msg": "Register Success, please log in!"}),
                             content_type="application/json")
     else:
-        return HttpResponse(json.dumps({"status": 401, "msg": "User already exists!"}),
+        return NoRequestLogHTTPResponse(json.dumps({"status": 401, "msg": "User already exists!"}),
                             content_type="application/json")
 
 
