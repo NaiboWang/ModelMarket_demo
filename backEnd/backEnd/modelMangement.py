@@ -13,8 +13,20 @@ from django.http import HttpResponse
 from .netdrawer import main as getDot
 import requests
 from .dbconfig import *
-from .tools import utc_now, NoLogHTTPResponse,NoResponseLogHTTPResponse, json_wrap, NoRequestLogHTTPResponse
+from .tools import utc_now, NoLogHTTPResponse, NoResponseLogHTTPResponse, json_wrap, NoRequestLogHTTPResponse
 from .view import check_login, check_parameters
+
+aggregationNicknameCondition = [
+    {'$lookup': {'from': "auths", "localField": "author", "foreignField": "username", "as": "author_info"}},
+    {'$unwind': {'path': '$author_info', 'preserveNullAndEmptyArrays': True}},
+    {'$addFields': {'nickname': "$author_info.nickname"}},
+    {'$project': {'author_info': 0, '_id':0}}]
+
+
+def getNewConditionBaseOnNickname(condition):
+    qc = aggregationNicknameCondition.copy()
+    qc.append({"$match": condition})
+    return qc
 
 
 # 检查Id对应模型是否存在
@@ -24,7 +36,8 @@ def check_id(f):
         if 'id' in request.GET:
             tid = request.GET['id']
             try:
-                res = list(models.find({"id": int(tid)}, {"_id": 0}))
+                # res = list(models.find({"id": int(tid)}, {"_id": 0}))
+                res = list(models.aggregate(getNewConditionBaseOnNickname({"id": int(tid)})))
                 if len(res) > 0:
                     return f(request, res[0], *arg, **kwargs)
                 else:
@@ -59,16 +72,13 @@ def check_idAuth(f):
 @check_id
 def queryModel(request, result):
     return NoResponseLogHTTPResponse(json.dumps({"status": 200, "data": result}, default=json_util.default),
-                        content_type="application/json")
+                                     content_type="application/json")
 
 
-@check_parameters(["query", "pageNum", "pageSize", "fields", "sortProp", "order"])
+@check_parameters(["queryFields", "pageNum", "pageSize", "fields", "sortProp", "order"])
 def queryModels(request):
-    result, total = queryTable(models, request, additionalConditions=[{"status": True}], aggregationCondition=[{'$lookup': {'from': "auths", "localField": "author", "foreignField": "username", "as": "author_info"}},
-     {'$unwind': {'path': '$author_info', 'preserveNullAndEmptyArrays': True}},
-     {'$addFields': {'nickname': "$author_info.nickname"}},
-     {'$project': {'author_info': 0}}
-     ])
+    result, total = queryTable(models, request, additionalConditions=[{"status": True}],
+                               aggregationConditions=aggregationNicknameCondition)
     return json_wrap({"status": 200, "data": result, "total": total}, no_response=True)
 
 
@@ -87,6 +97,7 @@ def queryModelsManagement(request):
 def manageModel(request):
     data = request.POST['params']
     data = json.loads(data)
+    data.pop('nickname') # 删除nickname字段
     data["author"] = request.session["username"]
     t = utc_now().strftime("%Y-%m-%d %H:%M:%S")
     if int(data["id"]) == -1:
@@ -203,22 +214,23 @@ def getStructurePic(filename):
     command = 'dot -Tsvg pics/dots/%s.dot -o pics/%s.svg' % (filename, filename)
     os.popen(command)
 
+
 @check_login
 def uploadFile(request):
     try:
         file_obj = request.FILES.get('file[]')
         file_extension = file_obj.name.split(".")[-1]
-        if file_extension in ['png','svg','jpg','jpeg','bmp','gif']:
+        if file_extension in ['png', 'svg', 'jpg', 'jpeg', 'bmp', 'gif']:
             file_type = 'image'
         else:
             file_type = 'file'
-        filename = request.session["username"] + "_"+file_type+"_" + utc_now().strftime(
-            "_%Y-%m-%d-%H-%M-%S") + str(random.random() * 10).replace(".", '') + '.' +file_extension
+        filename = request.session["username"] + "_" + file_type + "_" + utc_now().strftime(
+            "_%Y-%m-%d-%H-%M-%S") + str(random.random() * 10).replace(".", '') + '.' + file_extension
         f = open(os.getcwd() + "/static/descFiles/" + filename, 'wb')
         for chunk in file_obj.chunks():
             f.write(chunk)
         f.close()
 
-        return json_wrap({"status": 200, "filename": filename, 'file_type':file_type})
+        return json_wrap({"status": 200, "filename": filename, 'file_type': file_type})
     except Exception as e:
         return HttpResponse(json.dumps({"status": 500, "msg": str(e)}), content_type="application/json")
