@@ -45,6 +45,8 @@ def getQueryCondition(queryConditions):
                     conditions.append({fieldInfo["name"]: {"$eq": num}})
                 except:
                     conditions.append({fieldInfo["name"]: {"$eq": -99999}})
+            else:
+                conditions.append({fieldInfo["name"]: {"$gte": -99999}})
     return {"$or": conditions}
 
 
@@ -58,13 +60,28 @@ def queryTable(table, request, additionalColumns={"_id": 0}, additionalCondition
         queryFields = json.loads(request.POST["queryFields"])
         multiConditions = json.loads(request.POST["multiConditions"])
         for field in queryFields:
-            query_t = multiConditions[field['value']]
-            if query_t == '':
-                continue
-            if 'type' in field:
-                if field['type'] == 'datetime':
+            if field['type'] == 'datetime':
+                datetime_from = multiConditions[field['value'] + "_from"]
+                if datetime_from != '':
+                    additionalConditions.append({field['value']: {"$gte":  datetime_from.replace("T"," ")}})
+                datetime_to = multiConditions[field['value'] + "_to"]
+                if datetime_to != '':
+                    additionalConditions.append({field['value']: {"$lte": datetime_to.replace("T", " ")}})
+            elif field['type'] == 'number':
+                try:
+                    num_from = float(multiConditions[field['value'] + "_from"])
+                    additionalConditions.append({field['value']:{"$gte": num_from}})
+                except:
+                    pass
+                try:
+                    num_to = float(multiConditions[field['value'] + "_to"])
+                    additionalConditions.append({field['value']:{"$lte": num_to}})
+                except:
                     pass
             else:
+                query_t = multiConditions[field['value']]
+                if query_t == '':
+                    continue
                 pattern_t = re.compile(r'.*' + query_t + '.*', re.I)
                 regex_t = Regex.from_native(pattern_t)
                 regex_t.flags ^= re.UNICODE

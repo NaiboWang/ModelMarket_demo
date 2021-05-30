@@ -83,7 +83,7 @@ def queryModels(request):
 
 
 @check_login
-@check_parameters(["query", "pageNum", "pageSize", "fields", "sortProp", "order"])
+@check_parameters(["queryFields", "pageNum", "pageSize", "fields", "sortProp", "order"])
 def queryModelsManagement(request):
     if request.session["role"] == "manager":
         result, total = queryTable(models, request)
