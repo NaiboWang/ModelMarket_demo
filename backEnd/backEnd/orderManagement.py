@@ -68,7 +68,7 @@ def buyModel(request, result=""):
 
 
 @check_login
-@check_parameters(["query", "pageNum", "pageSize", "fields", "sortProp", "order"])
+@check_parameters(["queryFields","pageNum", "pageSize", "fields", "sortProp", "order"])
 def queryPurchasedOrders(request):
     if request.session["role"] == "manager":
         result, total = queryTable(orders, request, aggregationConditions=aggregationNicknameCondition)
@@ -78,7 +78,7 @@ def queryPurchasedOrders(request):
         return json_wrap({"status": 200, "data": result, "total": total}, no_response=True)
 
 @check_login
-@check_parameters(["query", "pageNum", "pageSize", "fields", "sortProp", "order"])
+@check_parameters(["queryFields","pageNum", "pageSize", "fields", "sortProp", "order"])
 def querySoldOrders(request):
     if request.session["role"] == "manager":
         result, total = queryTable(orders, request, aggregationConditions=aggregationNicknameCondition)
