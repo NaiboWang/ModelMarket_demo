@@ -9,7 +9,8 @@ myauths = mydb["auths"]
 models = mydb["models"]
 orders = mydb["orders"]
 logs = mydb["logs"]
-
+discussions = mydb["discussions"]
+notifications = mydb["notifications"]
 
 # {
 #   $project: {
@@ -49,9 +50,12 @@ def getQueryCondition(queryConditions):
                 conditions.append({fieldInfo["name"]: {"$gte": -99999}})
     return {"$or": conditions}
 
-
+# 【Python有坑系列】函数默认参数_小白兔de窝-CSDN博客
+# https://blog.csdn.net/ztf312/article/details/84998137
 # 根据不同条件查询
-def queryTable(table, request, additionalColumns={"_id": 0}, additionalConditions=[], aggregationConditions=False):
+def queryTable(table, request, additionalColumns={"_id": 0}, additionalConditions=None, aggregationConditions=False):
+    if additionalConditions is None:
+        additionalConditions = []
     pageNum = int(request.POST["pageNum"])
     pageSize = int(request.POST["pageSize"])
     queryConditions = json.loads(request.POST["fields"])

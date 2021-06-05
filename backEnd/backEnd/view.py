@@ -59,12 +59,13 @@ def check_parameters(paras):
 
 def getIdentity(request):
     if request.session.get('is_login') == '1':
+        notification_number = notifications.find({"username": request.session["username"],"read":0}).count()
         return NoLogHTTPResponse(
-            json.dumps({"status": 200, "role": request.session["role"], "nickname": request.session["nickname"]}),
+            json.dumps({"status": 200, "role": request.session["role"], "nickname": request.session["nickname"],"username": request.session["username"],"notifications":notification_number}),
             content_type="application/json")
     else:
         return NoLogHTTPResponse(
-            json.dumps({"status": 200, "role": "guest", "nickname": "guest"}),
+            json.dumps({"status": 200, "role": "guest", "nickname": "guest", "username":"guest"}),
             content_type="application/json")
 
 

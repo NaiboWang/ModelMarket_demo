@@ -7,11 +7,13 @@ import json
 from base64 import b64decode, b16decode
 from django.conf import settings
 
+
 # 不打log的情况
 class NoLogHTTPResponse(HttpResponse):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.no_log = True
+
 
 # 不打request的情况
 class NoRequestLogHTTPResponse(HttpResponse):
@@ -19,11 +21,13 @@ class NoRequestLogHTTPResponse(HttpResponse):
         super().__init__(*args, **kwargs)
         self.no_request_log = True
 
+
 # 不打response的情况
 class NoResponseLogHTTPResponse(HttpResponse):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.no_response_log = True
+
 
 def json_wrap(res, no_log=False, no_response=False, no_request=False):
     if no_log:
