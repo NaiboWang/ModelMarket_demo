@@ -7,7 +7,8 @@ import json
 from functools import wraps
 from .dbconfig import *
 from bson import json_util
-from .tools import utc_now, decrypt_message, NoLogHTTPResponse, NoResponseLogHTTPResponse, NoRequestLogHTTPResponse, json_wrap
+from .tools import utc_now, decrypt_message, NoLogHTTPResponse, NoResponseLogHTTPResponse, NoRequestLogHTTPResponse, \
+    json_wrap
 
 
 def hello(request):
@@ -59,13 +60,15 @@ def check_parameters(paras):
 
 def getIdentity(request):
     if request.session.get('is_login') == '1':
-        notification_number = notifications.find({"username": request.session["username"],"read":0}).count()
+        notification_number = notifications.find({"username": request.session["username"], "read": 0}).count()
+        notification_number = min(99, notification_number)
         return NoLogHTTPResponse(
-            json.dumps({"status": 200, "role": request.session["role"], "nickname": request.session["nickname"],"username": request.session["username"],"notifications":notification_number}),
+            json.dumps({"status": 200, "role": request.session["role"], "nickname": request.session["nickname"],
+                        "username": request.session["username"], "notifications": notification_number}),
             content_type="application/json")
     else:
         return NoLogHTTPResponse(
-            json.dumps({"status": 200, "role": "guest", "nickname": "guest", "username":"guest"}),
+            json.dumps({"status": 200, "role": "guest", "nickname": "guest", "username": "guest"}),
             content_type="application/json")
 
 
@@ -184,8 +187,8 @@ def login(request):
 
 @check_login
 def logout(request):
-    request.additionalInfo = {"username":request.session["username"],
-                              "nickname":request.session["nickname"],
+    request.additionalInfo = {"username": request.session["username"],
+                              "nickname": request.session["nickname"],
                               "role": request.session["role"]}
     request.session.flush()
     return HttpResponse(json.dumps({"status": 200, "msg": "Logout success!"}), content_type="application/json")
@@ -202,7 +205,7 @@ def changePassword(request):
         return NoRequestLogHTTPResponse(json.dumps({"status": 200}), content_type="application/json")
     else:
         return NoRequestLogHTTPResponse(json.dumps({"status": 401, "msg": "Old password is not correct!"}),
-                            content_type="application/json")
+                                        content_type="application/json")
 
 
 def register(request):
@@ -223,10 +226,10 @@ def register(request):
             user["id"] = int(res[0]["id"]) + 1
         myauths.insert_one(user)
         return NoRequestLogHTTPResponse(json.dumps({"status": 200, "msg": "Register Success, please log in!"}),
-                            content_type="application/json")
+                                        content_type="application/json")
     else:
         return NoRequestLogHTTPResponse(json.dumps({"status": 401, "msg": "User already exists!"}),
-                            content_type="application/json")
+                                        content_type="application/json")
 
 
 @check_login

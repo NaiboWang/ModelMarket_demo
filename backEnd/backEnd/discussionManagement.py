@@ -50,6 +50,8 @@ def queryDiscussion(request):
         return HttpResponse(
             json.dumps({"status": 404, "msg": "We can't find discussion info based on given ID!"}),
             content_type="application/json")
+    notifications.update_many({"discussionID": request.GET["id"],"username":request.session["username"]}, {'$set': {"read": 1}})
+
     return json_wrap({"status": 200, "data": result}, no_response=True)
 
 
