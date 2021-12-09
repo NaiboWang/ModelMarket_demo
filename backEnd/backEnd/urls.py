@@ -55,3 +55,4 @@ urlpatterns = [
     path('modelmarket_backend/queryNotifications', discussionManagement.queryNotifications),
 ]
 handler404 = view.S04
+handler500 = view.S500

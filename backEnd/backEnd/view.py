@@ -17,6 +17,11 @@ def hello(request): # 404页面
 def S04(request, exception): # 404页面
     return json_wrap({"msg":"404!"},no_log=True)
 
+def S500(request):
+    import traceback
+    error = str(traceback.format_exc())
+    return json_wrap({"msg": error}, no_log=True)
+
 def check_login(f):
     @wraps(f)
     def inner(request, *arg, **kwargs):
