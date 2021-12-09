@@ -3,4 +3,6 @@ nohup.out
 static/
 dynamic/
 logs/
+models/
+pics/
 *.pem
