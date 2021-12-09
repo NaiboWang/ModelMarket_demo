@@ -94,7 +94,12 @@ class RequestLogMiddleware(MiddlewareMixin):
             local.request_body = "Not show here to protect information"
         else:
             local.request_body = body
-        local.response = json.loads(bytes.decode(response.content))
+        try:
+            local.response = json.loads(bytes.decode(response.content))
+            if response.status_code != 200 or hasattr(response, 'no_response_log'):
+                local.response = "Not show here to save space"
+        except:
+            local.response = "Internal Server error, maybe incorrect path."
         if response.status_code != 200 or hasattr(response, 'no_response_log'):
             local.response = "Not show here to save space"
         local.sip = get_client_ip(request)

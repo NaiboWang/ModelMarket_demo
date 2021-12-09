@@ -11,9 +11,11 @@ from .tools import utc_now, decrypt_message, NoLogHTTPResponse, NoResponseLogHTT
     json_wrap
 
 
-def hello(request):
-    return NoLogHTTPResponse("Hello world!")
+def hello(request): # 404页面
+    return json_wrap({"msg":"Hello world!"},no_log=True)
 
+def S04(request, exception): # 404页面
+    return json_wrap({"msg":"404!"},no_log=True)
 
 def check_login(f):
     @wraps(f)

@@ -19,7 +19,8 @@ from . import view, modelMangement, ensemble, orderManagement, logs, discussionM
 from django.conf.urls import url
 
 urlpatterns = [
-    url(r'^modelmarket_backend/$', view.hello),
+    path('', view.hello),
+    path('modelmarket_backend/', view.hello),
     path('modelmarket_backend/login', view.login),
     path('modelmarket_backend/getIdentity', view.getIdentity),
     path('modelmarket_backend/logout', view.logout),
@@ -53,3 +54,4 @@ urlpatterns = [
     path('modelmarket_backend/addTopic', discussionManagement.addTopic),
     path('modelmarket_backend/queryNotifications', discussionManagement.queryNotifications),
 ]
+handler404 = view.S04
