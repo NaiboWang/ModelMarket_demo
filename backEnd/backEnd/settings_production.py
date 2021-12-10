@@ -133,8 +133,8 @@ DATA_UPLOAD_MAX_MEMORY_SIZE = 2621440000  #上传数据大小，也改成了25M
 
 # 为了防止cookie被阻止，这里要设置这两行，因为新的浏览器设置
 # 即如果是跨域的前后端调试，需要打开这两行
-SESSION_COOKIE_SAMESITE = 'none'
-CSRF_COOKIE_SAMESITE = 'none'
+# SESSION_COOKIE_SAMESITE = 'none'
+# CSRF_COOKIE_SAMESITE = 'none'
 # 以下两行为是否为https链接，在标准配置中，如果前后台地址不同，则设置跨域必须加上这行
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
