@@ -3,7 +3,7 @@ import re
 import pymongo
 from bson import Regex
 
-myclient = pymongo.MongoClient('mongodb://localhost:27017/')
+myclient = pymongo.MongoClient('mongodb://modelmarket:Qw123456789@localhost:27017/', connect=False)
 mydb = myclient['modelmarket']
 myauths = mydb["auths"]
 models = mydb["models"]

@@ -1,0 +1,111 @@
+*** Starting uWSGI 2.0.19.1 (64bit) on [Fri Dec 10 13:54:55 2021] ***
+compiled with version: 9.3.0 on 02 March 2021 12:42:23
+os: Linux-5.4.0-72-generic #80-Ubuntu SMP Mon Apr 12 17:35:00 UTC 2021
+nodename: gpuserver
+machine: x86_64
+clock source: unix
+pcre jit disabled
+detected number of CPU cores: 64
+current working directory: /home/naibo/server/ModelMarket_demo/backEnd
+writing pidfile to /home/naibo/server/ModelMarket_demo/backEnd/uwsgi.pid
+detected binary path: /home/naibo/anaconda3/envs/modelmarket/bin/uwsgi
+chdir() to /home/naibo/server/ModelMarket_demo/backEnd
+your processes number limit is 1541856
+your memory page size is 4096 bytes
+detected max file descriptor number: 1024
+lock engine: pthread robust mutexes
+thunder lock: disabled (you can enable it with --thunder-lock)
+uWSGI http bound on 0.0.0.0:8000 fd 3
+uwsgi socket 0 bound to UNIX address /home/naibo/server/ModelMarket_demo/backEnd/uwsgi.sock fd 6
+Python version: 3.8.8 | packaged by conda-forge | (default, Feb 20 2021, 16:22:27)  [GCC 9.3.0]
+Python main interpreter initialized at 0x558f33cffa70
+python threads support enabled
+your server socket listen backlog is limited to 100 connections
+your mercy for graceful operations on workers is 60 seconds
+mapped 416880 bytes (407 KB) for 8 cores
+*** Operational MODE: preforking+threaded ***
+WSGI app 0 (mountpoint='') ready in 1 seconds on interpreter 0x558f33cffa70 pid: 2494204 (default app)
+mountpoint  already configured. skip.
+*** uWSGI is running in multiple interpreter mode ***
+spawned uWSGI master process (pid: 2494204)
+spawned uWSGI worker 1 (pid: 2494323, cores: 2)
+spawned uWSGI worker 2 (pid: 2494325, cores: 2)
+spawned uWSGI worker 3 (pid: 2494327, cores: 2)
+spawned uWSGI worker 4 (pid: 2494329, cores: 2)
+spawned uWSGI http 1 (pid: 2494331)
+[pid: 2494329|app: 0|req: 1/1] 172.16.58.179 () {50 vars in 2138 bytes} [Fri Dec 10 05:54:58 2021] GET /modelmarket_backend/getIdentity => generated 74 bytes in 556 msecs (HTTP/1.1 200) 7 headers in 246 bytes (1 switches on core 0)
+system-auto
+
+
+ /modelmarket_backend/queryModels 2021-12-10, 13:54:58.696914 {'time': datetime.datetime(2021, 12, 10, 13, 54, 58, 696604), 'func': 'queryModels', 'method': 'POST', 'username': 'Guest', 'role': 'Guest', 'nickname': 'Guest', 'request_body': {'pageNum': ['1'], 'pageSize': ['10'], 'sortProp': ['updated_time'], 'order': ['-1'], 'advance': ['0'], 'multiConditions': ['{"modelName":"","nickname":"","modelFramework":"","price_from":"","price_to":"","tags":"","updated_time_from":"","updated_time_to":""}'], 'additionalConditions': ['[object Object]'], 'queryFields': ['[{"label":"Model Name","value":"modelName","type":"text","comment":""},{"label":"Author","value":"nickname","type":"text","comment":""},{"label":"Framework","value":"modelFramework","type":"text","comment":""},{"label":"Price","value":"price","type":"number","comment":""},{"label":"Tag","value":"tags","type":"text","comment":""},{"label":"Update Time","comment":" (Must specify time, not only date)","value":"updated_time","type":"datetime"}]'], 'query': [''], 'fields': ['[{"name":"modelName","type":"text","query":""}]']}, 'response': 'Not show here to save space', 'sip': '172.16.58.179', 'dip': '127.0.1.1', 'status_code': 200, 'reason_phrase': 'OK', 'help': ''} 
+
+
+[pid: 2494327|app: 0|req: 1/2] 172.16.58.179 () {56 vars in 2335 bytes} [Fri Dec 10 05:54:58 2021] POST /modelmarket_backend/queryModels => generated 7496 bytes in 567 msecs (HTTP/1.1 200) 9 headers in 354 bytes (1 switches on core 0)
+[pid: 2494329|app: 0|req: 3/3] 172.16.58.179 () {50 vars in 2138 bytes} [Fri Dec 10 05:54:59 2021] GET /modelmarket_backend/getIdentity => generated 74 bytes in 7 msecs (HTTP/1.1 200) 7 headers in 246 bytes (1 switches on core 0)
+system-auto
+
+
+ /modelmarket_backend/queryModels 2021-12-10, 13:54:59.461129 {'time': datetime.datetime(2021, 12, 10, 13, 54, 59, 460524), 'func': 'queryModels', 'method': 'POST', 'username': 'Guest', 'role': 'Guest', 'nickname': 'Guest', 'request_body': {'pageNum': ['1'], 'pageSize': ['10'], 'sortProp': ['updated_time'], 'order': ['-1'], 'advance': ['0'], 'multiConditions': ['{"modelName":"","nickname":"","modelFramework":"","price_from":"","price_to":"","tags":"","updated_time_from":"","updated_time_to":""}'], 'additionalConditions': ['[object Object]'], 'queryFields': ['[{"label":"Model Name","value":"modelName","type":"text","comment":""},{"label":"Author","value":"nickname","type":"text","comment":""},{"label":"Framework","value":"modelFramework","type":"text","comment":""},{"label":"Price","value":"price","type":"number","comment":""},{"label":"Tag","value":"tags","type":"text","comment":""},{"label":"Update Time","comment":" (Must specify time, not only date)","value":"updated_time","type":"datetime"}]'], 'query': [''], 'fields': ['[{"name":"modelName","type":"text","query":""}]']}, 'response': 'Not show here to save space', 'sip': '172.16.58.179', 'dip': '127.0.1.1', 'status_code': 200, 'reason_phrase': 'OK', 'help': ''} 
+
+
+[pid: 2494329|app: 0|req: 3/4] 172.16.58.179 () {56 vars in 2335 bytes} [Fri Dec 10 05:54:59 2021] POST /modelmarket_backend/queryModels => generated 7496 bytes in 20 msecs (HTTP/1.1 200) 9 headers in 354 bytes (1 switches on core 1)
+[pid: 2494329|app: 0|req: 4/5] 172.16.58.179 () {50 vars in 2138 bytes} [Fri Dec 10 05:55:00 2021] GET /modelmarket_backend/getIdentity => generated 74 bytes in 1 msecs (HTTP/1.1 200) 7 headers in 246 bytes (1 switches on core 0)
+system-auto
+
+
+ /modelmarket_backend/queryModels 2021-12-10, 13:55:00.258897 {'time': datetime.datetime(2021, 12, 10, 13, 55, 0, 258335), 'func': 'queryModels', 'method': 'POST', 'username': 'Guest', 'role': 'Guest', 'nickname': 'Guest', 'request_body': {'pageNum': ['1'], 'pageSize': ['10'], 'sortProp': ['updated_time'], 'order': ['-1'], 'advance': ['0'], 'multiConditions': ['{"modelName":"","nickname":"","modelFramework":"","price_from":"","price_to":"","tags":"","updated_time_from":"","updated_time_to":""}'], 'additionalConditions': ['[object Object]'], 'queryFields': ['[{"label":"Model Name","value":"modelName","type":"text","comment":""},{"label":"Author","value":"nickname","type":"text","comment":""},{"label":"Framework","value":"modelFramework","type":"text","comment":""},{"label":"Price","value":"price","type":"number","comment":""},{"label":"Tag","value":"tags","type":"text","comment":""},{"label":"Update Time","comment":" (Must specify time, not only date)","value":"updated_time","type":"datetime"}]'], 'query': [''], 'fields': ['[{"name":"modelName","type":"text","query":""}]']}, 'response': 'Not show here to save space', 'sip': '172.16.58.179', 'dip': '127.0.1.1', 'status_code': 200, 'reason_phrase': 'OK', 'help': ''} 
+
+
+[pid: 2494327|app: 0|req: 2/6] 172.16.58.179 () {56 vars in 2335 bytes} [Fri Dec 10 05:55:00 2021] POST /modelmarket_backend/queryModels => generated 7496 bytes in 11 msecs (HTTP/1.1 200) 9 headers in 354 bytes (1 switches on core 1)
+[pid: 2494329|app: 0|req: 5/7] 172.16.58.179 () {50 vars in 2138 bytes} [Fri Dec 10 05:55:00 2021] GET /modelmarket_backend/getIdentity => generated 74 bytes in 0 msecs (HTTP/1.1 200) 7 headers in 246 bytes (1 switches on core 1)
+system-auto
+
+
+ /modelmarket_backend/queryModels 2021-12-10, 13:55:00.972619 {'time': datetime.datetime(2021, 12, 10, 13, 55, 0, 972331), 'func': 'queryModels', 'method': 'POST', 'username': 'Guest', 'role': 'Guest', 'nickname': 'Guest', 'request_body': {'pageNum': ['1'], 'pageSize': ['10'], 'sortProp': ['updated_time'], 'order': ['-1'], 'advance': ['0'], 'multiConditions': ['{"modelName":"","nickname":"","modelFramework":"","price_from":"","price_to":"","tags":"","updated_time_from":"","updated_time_to":""}'], 'additionalConditions': ['[object Object]'], 'queryFields': ['[{"label":"Model Name","value":"modelName","type":"text","comment":""},{"label":"Author","value":"nickname","type":"text","comment":""},{"label":"Framework","value":"modelFramework","type":"text","comment":""},{"label":"Price","value":"price","type":"number","comment":""},{"label":"Tag","value":"tags","type":"text","comment":""},{"label":"Update Time","comment":" (Must specify time, not only date)","value":"updated_time","type":"datetime"}]'], 'query': [''], 'fields': ['[{"name":"modelName","type":"text","query":""}]']}, 'response': 'Not show here to save space', 'sip': '172.16.58.179', 'dip': '127.0.1.1', 'status_code': 200, 'reason_phrase': 'OK', 'help': ''} 
+
+
+[pid: 2494329|app: 0|req: 6/8] 172.16.58.179 () {56 vars in 2335 bytes} [Fri Dec 10 05:55:00 2021] POST /modelmarket_backend/queryModels => generated 7496 bytes in 5 msecs (HTTP/1.1 200) 9 headers in 354 bytes (1 switches on core 0)
+[pid: 2494329|app: 0|req: 7/9] 172.16.58.179 () {50 vars in 2138 bytes} [Fri Dec 10 05:55:01 2021] GET /modelmarket_backend/getIdentity => generated 74 bytes in 1 msecs (HTTP/1.1 200) 7 headers in 246 bytes (1 switches on core 1)
+system-auto
+
+
+ /modelmarket_backend/queryModels 2021-12-10, 13:55:02.346749 {'time': datetime.datetime(2021, 12, 10, 13, 55, 2, 346166), 'func': 'queryModels', 'method': 'POST', 'username': 'Guest', 'role': 'Guest', 'nickname': 'Guest', 'request_body': {'pageNum': ['1'], 'pageSize': ['10'], 'sortProp': ['updated_time'], 'order': ['-1'], 'advance': ['0'], 'multiConditions': ['{"modelName":"","nickname":"","modelFramework":"","price_from":"","price_to":"","tags":"","updated_time_from":"","updated_time_to":""}'], 'additionalConditions': ['[object Object]'], 'queryFields': ['[{"label":"Model Name","value":"modelName","type":"text","comment":""},{"label":"Author","value":"nickname","type":"text","comment":""},{"label":"Framework","value":"modelFramework","type":"text","comment":""},{"label":"Price","value":"price","type":"number","comment":""},{"label":"Tag","value":"tags","type":"text","comment":""},{"label":"Update Time","comment":" (Must specify time, not only date)","value":"updated_time","type":"datetime"}]'], 'query': [''], 'fields': ['[{"name":"modelName","type":"text","query":""}]']}, 'response': 'Not show here to save space', 'sip': '172.16.58.179', 'dip': '127.0.1.1', 'status_code': 200, 'reason_phrase': 'OK', 'help': ''} 
+
+
+[pid: 2494325|app: 0|req: 1/10] 172.16.58.179 () {56 vars in 2335 bytes} [Fri Dec 10 05:55:01 2021] POST /modelmarket_backend/queryModels => generated 7496 bytes in 476 msecs (HTTP/1.1 200) 9 headers in 354 bytes (1 switches on core 0)
+[pid: 2494329|app: 0|req: 8/11] 172.16.58.179 () {50 vars in 2138 bytes} [Fri Dec 10 05:55:03 2021] GET /modelmarket_backend/getIdentity => generated 74 bytes in 0 msecs (HTTP/1.1 200) 7 headers in 246 bytes (2 switches on core 0)
+system-auto
+
+
+ /modelmarket_backend/queryModels 2021-12-10, 13:55:03.292659 {'time': datetime.datetime(2021, 12, 10, 13, 55, 3, 292114), 'func': 'queryModels', 'method': 'POST', 'username': 'Guest', 'role': 'Guest', 'nickname': 'Guest', 'request_body': {'pageNum': ['1'], 'pageSize': ['10'], 'sortProp': ['updated_time'], 'order': ['-1'], 'advance': ['0'], 'multiConditions': ['{"modelName":"","nickname":"","modelFramework":"","price_from":"","price_to":"","tags":"","updated_time_from":"","updated_time_to":""}'], 'additionalConditions': ['[object Object]'], 'queryFields': ['[{"label":"Model Name","value":"modelName","type":"text","comment":""},{"label":"Author","value":"nickname","type":"text","comment":""},{"label":"Framework","value":"modelFramework","type":"text","comment":""},{"label":"Price","value":"price","type":"number","comment":""},{"label":"Tag","value":"tags","type":"text","comment":""},{"label":"Update Time","comment":" (Must specify time, not only date)","value":"updated_time","type":"datetime"}]'], 'query': [''], 'fields': ['[{"name":"modelName","type":"text","query":""}]']}, 'response': 'Not show here to save space', 'sip': '172.16.58.179', 'dip': '127.0.1.1', 'status_code': 200, 'reason_phrase': 'OK', 'help': '', '_id': ObjectId('61b2ebb336b08695fc3578d4')} 
+
+
+Internal Server Error: /modelmarket_backend/queryModels
+Traceback (most recent call last):
+  File "/home/naibo/anaconda3/envs/modelmarket/lib/python3.8/site-packages/django/core/handlers/exception.py", line 47, in inner
+    response = get_response(request)
+  File "./xMiddleware/logger.py", line 114, in __call__
+    logs.insert_one(local.__dict__)
+  File "/home/naibo/.local/lib/python3.8/site-packages/pymongo/collection.py", line 698, in insert_one
+    self._insert(document,
+  File "/home/naibo/.local/lib/python3.8/site-packages/pymongo/collection.py", line 613, in _insert
+    return self._insert_one(
+  File "/home/naibo/.local/lib/python3.8/site-packages/pymongo/collection.py", line 602, in _insert_one
+    self.__database.client._retryable_write(
+  File "/home/naibo/.local/lib/python3.8/site-packages/pymongo/mongo_client.py", line 1498, in _retryable_write
+    return self._retry_with_session(retryable, func, s, None)
+  File "/home/naibo/.local/lib/python3.8/site-packages/pymongo/mongo_client.py", line 1384, in _retry_with_session
+    return self._retry_internal(retryable, func, session, bulk)
+  File "/home/naibo/.local/lib/python3.8/site-packages/pymongo/mongo_client.py", line 1416, in _retry_internal
+    return func(session, sock_info, retryable)
+  File "/home/naibo/.local/lib/python3.8/site-packages/pymongo/collection.py", line 600, in _insert_command
+    _check_write_command_response(result)
+  File "/home/naibo/.local/lib/python3.8/site-packages/pymongo/helpers.py", line 226, in _check_write_command_response
+    _raise_last_write_error(write_errors)
+  File "/home/naibo/.local/lib/python3.8/site-packages/pymongo/helpers.py", line 207, in _raise_last_write_error
+    raise DuplicateKeyError(error.get("errmsg"), 11000, error)
+pymongo.errors.DuplicateKeyError: E11000 duplicate key error collection: modelmarket.logs index: _id_ dup key: { _id: ObjectId('61b2ebb336b08695fc3578d4') }, full error: {'index': 0, 'code': 11000, 'keyPattern': {'_id': 1}, 'keyValue': {'_id': ObjectId('61b2ebb336b08695fc3578d4')}, 'errmsg': "E11000 duplicate key error collection: modelmarket.logs index: _id_ dup key: { _id: ObjectId('61b2ebb336b08695fc3578d4') }"}
+[pid: 2494329|app: 0|req: 9/12] 172.16.58.179 () {56 vars in 2335 bytes} [Fri Dec 10 05:55:03 2021] POST /modelmarket_backend/queryModels => generated 129562 bytes in 50 msecs (HTTP/1.1 500) 9 headers in 368 bytes (1 switches on core 1)
+[pid: 2494329|app: 0|req: 10/13] 91.232.30.116 () {24 vars in 252 bytes} [Fri Dec 10 05:55:27 2021] GET / => generated 0 bytes in 0 msecs (HTTP/1.1 301) 4 headers in 177 bytes (1 switches on core 0)
+[pid: 2494327|app: 0|req: 3/14] 217.12.208.131 () {24 vars in 253 bytes} [Fri Dec 10 05:56:25 2021] GET / => generated 0 bytes in 0 msecs (HTTP/1.1 301) 4 headers in 177 bytes (1 switches on core 0)
+[pid: 2494329|app: 0|req: 11/15] 217.12.208.131 () {24 vars in 253 bytes} [Fri Dec 10 05:57:21 2021] GET / => generated 0 bytes in 0 msecs (HTTP/1.1 301) 4 headers in 177 bytes (1 switches on core 1)

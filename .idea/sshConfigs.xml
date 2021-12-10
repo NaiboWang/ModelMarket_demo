@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project version="4">
-  <component name="SshConfigs">
-    <configs>
-      <sshConfig authType="PASSWORD" host="xtra3090.d2.comp.nus.edu.sg" id="2e7bfe1d-1ced-463b-9da4-0fd1b11dbbe0" port="22" nameFormat="DESCRIPTIVE" username="naibo" />
-      <sshConfig authType="PASSWORD" host="192.168.163.129" id="e69484b5-d477-44d1-828f-bcf54e8d576d" port="22" nameFormat="DESCRIPTIVE" username="naibo" />
-    </configs>
-  </component>
-</project>

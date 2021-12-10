@@ -5,11 +5,12 @@ import threading
 import socket
 from bson import json_util
 from backEnd.dbconfig import *
+import os
 from backEnd.tools import utc_now
 
 from django.utils.deprecation import MiddlewareMixin
 
-local = threading.local()
+local = threading.local() # 当前线程本地的数据
 from ipware import get_client_ip
 
 
@@ -73,7 +74,11 @@ class RequestLogMiddleware(MiddlewareMixin):
             body.update(dict(request.GET))
         else:
             body.update(dict(request.POST))
-        local.time = utc_now().strftime("%Y-%m-%d %H:%M:%S")
+        local.__dict__.clear() # 每次写日志前，都把本地local数据的缓存清空，不然会导致mongodb数据插不进去，因为有重复的_id字段！
+        # 注意这里，在生产环境下，我们设置了开4个线程，每个线程有自己的local数据，但是这个local数据会一直留着不会自动清空，而在开发环境下，我们只有一个线程，而且这个线程的local数据每次还会自动清空，所以这里一定要注意！
+        # print("\n\n", request.path, utc_now().strftime("%Y-%m-%d, %H:%M:%S.%f"), os.getpid(), local.__dict__,
+        #       "\n\n")
+        local.time = utc_now()
         local.func = request.path.replace("/modelmarket_backend/", "")
         local.method = request.method
         if "username" in request.session:

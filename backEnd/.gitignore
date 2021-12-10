@@ -6,3 +6,8 @@ logs/
 models/
 pics/
 *.pem
+*.key
+*.csr
+*.crt
+*.sock
+*.pid
