@@ -77,8 +77,11 @@ def queryModel(request, result):
 
 @check_parameters(["queryFields", "pageNum", "pageSize", "fields", "sortProp", "order"])
 def queryModels(request):
-    result, total = queryTable(models, request, additionalConditions=[{"status": True}],
-                               aggregationConditions=aggregationNicknameCondition)
+    # 这里有问题 以后再看怎么回事，先默认查询所有模型
+    # result, total = queryTable(models, request, additionalConditions=[{"status": True}],
+    #                            aggregationConditions=aggregationNicknameCondition)
+    result = list(models.find().limit(int(request.POST["pageSize"])).sort([(request.POST["sortProp"],int(request.POST["order"]))]).skip(int(request.POST["pageSize"]) * (int(request.POST["pageNum"])-1)))
+    total = int(models.count())
     return json_wrap({"status": 200, "data": result, "total": total}, no_response=True)
 
 
