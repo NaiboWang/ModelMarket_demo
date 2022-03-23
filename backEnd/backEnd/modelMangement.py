@@ -83,6 +83,7 @@ def queryModel(request, result):
             fileInfo["name"] = file
             fileInfo["location"] = result["modelId"] + "/" + file
             fileInfo["size"] = os.path.getsize(fileDir + "/" + file)
+            fileInfo["type"] = "folder" if os.path.isdir(fileDir + "/" + file) else "file"
             fileInfo["mtime"] = time.ctime(os.path.getmtime(fileDir + "/" + file))
             infoList.append(fileInfo)
             # print(file, os.path.getsize(fileDir + "/" + file), time.ctime(os.path.getmtime(fileDir + "/" + file)))
