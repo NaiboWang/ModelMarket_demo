@@ -5,6 +5,7 @@ Model Management
 import json
 import os
 import random
+import time
 from functools import wraps
 
 from bson import json_util
@@ -15,6 +16,8 @@ import requests
 from .dbconfig import *
 from .tools import utc_now, NoLogHTTPResponse, NoResponseLogHTTPResponse, json_wrap, NoRequestLogHTTPResponse
 from .view import check_login, check_parameters
+
+workDir = "/ids_nas/models/"
 
 aggregationNicknameCondition = [
     {'$lookup': {'from': "auths", "localField": "author", "foreignField": "username", "as": "author_info"}},
@@ -71,7 +74,19 @@ def check_idAuth(f):
 
 @check_id
 def queryModel(request, result):
-    return NoResponseLogHTTPResponse(json.dumps({"status": 200, "data": result}, default=json_util.default),
+    fileDir = workDir + result["modelId"]
+    infoList = []
+    if os.path.exists(fileDir):
+        fileList = os.listdir(fileDir)
+        for file in fileList:
+            fileInfo = {}
+            fileInfo["name"] = file
+            fileInfo["location"] = result["modelId"] + "/" + file
+            fileInfo["size"] = os.path.getsize(fileDir + "/" + file)
+            fileInfo["mtime"] = time.ctime(os.path.getmtime(fileDir + "/" + file))
+            infoList.append(fileInfo)
+            # print(file, os.path.getsize(fileDir + "/" + file), time.ctime(os.path.getmtime(fileDir + "/" + file)))
+    return NoResponseLogHTTPResponse(json.dumps({"status": 200, "data": result,"fileList":infoList}, default=json_util.default),
                                      content_type="application/json")
 
 
@@ -80,8 +95,10 @@ def queryModels(request):
     # 这里有问题 以后再看怎么回事，先默认查询所有模型
     # result, total = queryTable(models, request, additionalConditions=[{"status": True}],
     #                            aggregationConditions=aggregationNicknameCondition)
-    result = list(models.find().limit(int(request.POST["pageSize"])).sort([(request.POST["sortProp"],int(request.POST["order"]))]).skip(int(request.POST["pageSize"]) * (int(request.POST["pageNum"])-1)))
-    total = int(models.count())
+    queryName = eval(request.POST["fields"])[0]["query"]
+    re_name = re.compile(queryName, re.I)
+    result = list(models.find({"modelName":re_name}).limit(int(request.POST["pageSize"])).sort([(request.POST["sortProp"],int(request.POST["order"]))]).skip(int(request.POST["pageSize"]) * (int(request.POST["pageNum"])-1)))
+    total = int(models.find({"modelName":re_name}).count())
     return json_wrap({"status": 200, "data": result, "total": total}, no_response=True)
 
 
