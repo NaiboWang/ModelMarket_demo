@@ -225,6 +225,7 @@ def register(request):
     if len(r) == 0:  # 没找到值
         user = {"username": request.POST['username'], "pswd": decrypt_message(request.POST['pass']), "role": "user",
                 "deposit": 0,
+                "nickname":request.POST['nickname'],
                 "status": True, "register_time": utc_now().strftime("%Y-%m-%d %H:%M:%S")}
         res = list(myauths.find({}).sort("id", -1).skip(0).limit(1))
         if len(res) == 0:
